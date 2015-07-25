@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -13,7 +15,6 @@ import javax.swing.JFrame;
 
 public final class Screen {
 	
-	private int width, height;
 	private String title;
 	private boolean open, visible;
 	
@@ -21,7 +22,11 @@ public final class Screen {
 	private Canvas canvas;
 	private BufferedImage image;
 	
+	private int initialWidth, initialHeight;
+	private int canvasWidth, canvasHeight;
 	private int renderWidth, renderHeight;
+	private int renderX, renderY;
+	private ResizeBehaviour resizeBehaviour;
 	
 	private ITickable mainTickable;
 	private long lastTime;
@@ -38,8 +43,6 @@ public final class Screen {
 	 * @param title The screen title
 	 */
 	public Screen(final int width, final int height, final String title) {
-		this.width = width;
-		this.height = height;
 		this.title = title;
 		
 		final WindowAdapter closingAdapter = new WindowAdapter() {
@@ -48,23 +51,39 @@ public final class Screen {
 				close();
 			}
 		};
+		final ComponentAdapter resizeAdapter = new ComponentAdapter() {
+			@Override
+			public void componentResized(final ComponentEvent c) {
+				canvasWidth = canvas.getWidth();
+				canvasHeight = canvas.getHeight();
+				
+				if (resizeBehaviour == ResizeBehaviour.STRETCH) {
+					stretchContent();
+				} else if (resizeBehaviour == ResizeBehaviour.KEEP_ASPECT_RATIO) {
+					fitContent();
+				}
+			}
+		};
 		
 		open = true;
 		visible = false;
 		frame = new JFrame(title);
 		canvas = new Canvas();
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		renderWidth = width;
-		renderHeight = height;
-		lastTime = System.nanoTime();
+		initialWidth = width;
+		initialHeight = height;
+		canvasWidth = renderWidth = width;
+		canvasHeight = renderHeight = height;
+		resizeBehaviour = ResizeBehaviour.STRETCH;
 		
 		canvas.setPreferredSize(new Dimension(width, height));
 		
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(closingAdapter);
+		frame.addComponentListener(resizeAdapter);
 		frame.add(canvas, BorderLayout.CENTER);
 		frame.pack();
-		frame.setLocationRelativeTo(null);
+		frame.setLocationByPlatform(true);
 	}
 	
 	/**
@@ -76,7 +95,33 @@ public final class Screen {
 		this(width, height, NO_TITLE);
 	}
 	
+	private void stretchContent() {
+		renderWidth = canvasWidth;
+		renderHeight = canvasHeight;
+		renderX = renderY = 0;
+	}
+	
+	private void fitContent() {
+		final float ratioX = (float)canvasWidth / initialWidth;
+		final float ratioY = (float)canvasHeight / initialHeight;
+		
+		if (ratioX < ratioY) {
+			renderWidth = (int)(initialWidth * ratioX);
+			renderHeight = (int)(initialHeight * ratioX);
+		} else {
+			renderWidth = (int)(initialWidth * ratioY);
+			renderHeight = (int)(initialHeight * ratioY);
+		}
+		
+		renderX = canvasWidth / 2 - renderWidth / 2;
+		renderY = canvasHeight / 2 - renderHeight / 2;
+	}
+	
 	private void updateMainTickable(final float delta) {
+		if (!visible) {
+			return;
+		}
+		
 		if (mainTickable != null) {
 			mainTickable.update(delta);
 		}
@@ -98,14 +143,14 @@ public final class Screen {
 			g.dispose();
 		}
 		
-		g2.drawImage(image, 0, 0, renderWidth, renderHeight, null);
-		
+		g2.clearRect(0, 0, canvasWidth, canvasHeight);
+		g2.drawImage(image, renderX, renderY, renderWidth, renderHeight, null);
 		g2.dispose();
 		bs.show();
 	}
 	
 	/**
-	 * Updates the screen and calls the methods in the ITickable object, if existent
+	 * Updates the screen and calls the methods in the ITickable object, if existent.
 	 */
 	public void update() {
 		final long now = System.nanoTime();
@@ -118,16 +163,18 @@ public final class Screen {
 	}
 	
 	/**
-	 * Shows the screen
+	 * Shows the screen.
 	 */
 	public void show() {
 		frame.setVisible(true);
 		canvas.createBufferStrategy(BUFFER_COUNT);
+		
+		lastTime = System.nanoTime();
 		visible = true;
 	}
 	
 	/**
-	 * Hides the screen
+	 * Hides the screen. The methods of the main ITickable object won't get called.
 	 */
 	public void hide() {
 		visible = false;
@@ -135,7 +182,7 @@ public final class Screen {
 	}
 	
 	/**
-	 * Closes the screen
+	 * Closes the screen.
 	 */
 	public void close() {
 		hide();
@@ -144,7 +191,7 @@ public final class Screen {
 	}
 	
 	/**
-	 * Sets the main ITickable object this screen should update
+	 * Sets the main ITickable object this screen should update.
 	 * 
 	 * @param mainTickable The main ITickable object
 	 */
@@ -153,7 +200,23 @@ public final class Screen {
 	}
 	
 	/**
-	 * Returns whether the screen is open and can be used
+	 * Sets the title for the screen.
+	 * @param title The title the screen should have from now on
+	 */
+	public void setTitle(final String title) {
+		this.title = title;
+	}
+	
+	/**
+	 * Sets the resize behaviour of the screen. Either stretched or fitted.
+	 * @param resizeBehaviour The resize behaviour
+	 */
+	public void setResizeBehaviour(final ResizeBehaviour resizeBehaviour) {
+		this.resizeBehaviour = resizeBehaviour;
+	}
+	
+	/**
+	 * Returns whether the screen is open and can be used.
 	 * @return The state
 	 */
 	public boolean isOpen() {
@@ -161,7 +224,7 @@ public final class Screen {
 	}
 	
 	/**
-	 * Returns wheter the screen is visible
+	 * Returns wheter the screen is visible.
 	 * @return The state
 	 */
 	public boolean isVisible() {
@@ -169,23 +232,39 @@ public final class Screen {
 	}
 	
 	/**
-	 * Returns the inial width of the screen. This will not change, even when resized
+	 * Returns the inial width of the screen. This will not change, even when resized.
 	 * @return The width
 	 */
-	public int getWidth() {
-		return width;
+	public int getInitialWidth() {
+		return initialWidth;
 	}
 	
 	/**
-	 * Returns the inial height of the screen. This will not change, even when resized
+	 * Returns the inial height of the screen. This will not change, even when resized.
 	 * @return The height
 	 */
-	public int getHeight() {
-		return height;
+	public int getInitialHeight() {
+		return initialHeight;
 	}
 	
 	/**
-	 * Returns the current title of the screen
+	 * Returns the width of the screen. This does not include frame borders.
+	 * @return The inner width
+	 */
+	public int getWidth() {
+		return canvasWidth;
+	}
+	
+	/**
+	 * Returns the height of the screen. This does not include frame borders.
+	 * @return The inner height
+	 */
+	public int getHeight() {
+		return canvasHeight;
+	}
+	
+	/**
+	 * Returns the current title of the screen.
 	 * @return The title
 	 */
 	public String getTitle() {
@@ -193,11 +272,18 @@ public final class Screen {
 	}
 	
 	/**
-	 * Sets the title for the screen
-	 * @param title The title the screen should have from now on
+	 * Returns the current resize behaviour of the screen.
+	 * @return The resize behaviour
 	 */
-	public void setTitle(final String title) {
-		this.title = title;
+	public ResizeBehaviour getResizeBehaviour() {
+		return resizeBehaviour;
+	}
+	
+	public enum ResizeBehaviour {
+		
+		STRETCH,
+		KEEP_ASPECT_RATIO;
+		
 	}
 	
 }
