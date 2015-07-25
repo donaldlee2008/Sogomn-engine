@@ -12,7 +12,7 @@ import java.net.Socket;
  * @author Sogomn
  *
  */
-public class TCPConnection {
+public class TCPConnection implements IClosable {
 	
 	private String address;
 	private int port;
@@ -79,6 +79,7 @@ public class TCPConnection {
 	/**
 	 * Closes the connection and all its streams.
 	 */
+	@Override
 	public void close() {
 		open = false;
 		try {
