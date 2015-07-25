@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
  */
 public final class SpriteSheet {
 	
-	private BufferedImage[][] images;
+	private BufferedImage[][] sprites;
 	private int width, height;
 	private int spriteWidth, spriteHeight;
 	private int spritesWide, spritesHigh;
@@ -28,7 +28,7 @@ public final class SpriteSheet {
 		height = image.getHeight();
 		spritesWide = width / spriteWidth;
 		spritesHigh = height / spriteHeight;
-		images = new BufferedImage[spritesWide][spritesHigh];
+		sprites = new BufferedImage[spritesWide][spritesHigh];
 		
 		loadImages(image);
 	}
@@ -50,7 +50,7 @@ public final class SpriteSheet {
 				final int imageY = y * spriteHeight;
 				final BufferedImage subimage = image.getSubimage(imageX, imageY, spriteWidth, spriteHeight);
 				
-				images[x][y] = subimage;
+				sprites[x][y] = subimage;
 			}
 		}
 	}
@@ -66,7 +66,7 @@ public final class SpriteSheet {
 			return null;
 		}
 		
-		final BufferedImage image = images[x][y];
+		final BufferedImage image = sprites[x][y];
 		
 		return image;
 	}
@@ -103,6 +103,25 @@ public final class SpriteSheet {
 		final BufferedImage image = getSprite(index, Orientation.LEFT_TO_RIGHT);
 		
 		return image;
+	}
+	
+	/**
+	 * Returns all sprites this sprite sheet holds.
+	 * @return The sprites as an array
+	 */
+	public BufferedImage[] getSprites() {
+		final BufferedImage[] images = new BufferedImage[spritesWide * spritesHigh];
+		
+		for (int x = 0; x < spritesWide; x++) {
+			for (int y = 0; y < spritesHigh; y++) {
+				final BufferedImage image = getSprite(x, y);
+				final int index = x + y * spritesWide;
+				
+				images[index] = image;
+			}
+		}
+		
+		return images;
 	}
 	
 	/**

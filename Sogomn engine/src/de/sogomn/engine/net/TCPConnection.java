@@ -92,8 +92,8 @@ public class TCPConnection implements IClosable {
 	}
 	
 	/**
-	 * Writes the data passed to this method.
-	 * @param data The data to be written
+	 * Writes a message to the connection.
+	 * @param data The message to be written
 	 */
 	public void write(final String string) {
 		try {
@@ -105,8 +105,8 @@ public class TCPConnection implements IClosable {
 	}
 	
 	/**
-	 * Reads the next segment of bytes.
-	 * @return The read bytes
+	 * Reads the next message.
+	 * @return The string
 	 */
 	public String read() {
 		try {
