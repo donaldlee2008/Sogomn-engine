@@ -13,6 +13,11 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
+/**
+ * This class represents a screen. Uses a JFrame internally which holds the content and can be shown with the show() method.
+ * @author Sogomn
+ *
+ */
 public final class Screen {
 	
 	private String title;
@@ -213,6 +218,14 @@ public final class Screen {
 	 */
 	public void setResizeBehaviour(final ResizeBehaviour resizeBehaviour) {
 		this.resizeBehaviour = resizeBehaviour;
+	}
+	
+	/**
+	 * Sets the icon for this screen. It will be displayed on the top left of the frame as well as in the taskbar.
+	 * @param image The icon as an image
+	 */
+	public void setIcon(final BufferedImage image) {
+		frame.setIconImage(image);
 	}
 	
 	/**

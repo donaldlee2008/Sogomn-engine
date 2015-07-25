@@ -2,6 +2,11 @@ package de.sogomn.engine;
 
 import java.awt.Graphics2D;
 
+/**
+ * Defines an interface to be used for the Screen class and any object that "ticks".
+ * @author Sogomn
+ *
+ */
 public interface ITickable {
 	
 	/**
