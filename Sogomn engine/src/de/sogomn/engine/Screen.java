@@ -292,6 +292,11 @@ public final class Screen {
 		return resizeBehaviour;
 	}
 	
+	/**
+	 * Holds the different resize behaviours for the Screen class.
+	 * @author Sogomn
+	 *
+	 */
 	public enum ResizeBehaviour {
 		
 		STRETCH,

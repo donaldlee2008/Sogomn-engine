@@ -1,6 +1,6 @@
 package de.sogomn.engine.net;
 
-public interface IClosable {
+interface IClosable {
 	
 	void close();
 	
