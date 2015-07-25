@@ -3,6 +3,7 @@ package de.sogomn.engine;
 
 
 
+
 final class Main {
 	
 	private Main() {
