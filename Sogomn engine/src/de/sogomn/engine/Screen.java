@@ -20,13 +20,14 @@ import javax.swing.JFrame;
  */
 public final class Screen {
 	
-	private String title;
-	private boolean open, visible;
-	
 	private JFrame frame;
 	private Canvas canvas;
 	private Mouse mouse;
+	private Keyboard keyboard;
 	private BufferedImage image;
+	
+	private String title;
+	private boolean open, visible;
 	
 	private int initialWidth, initialHeight;
 	private int canvasWidth, canvasHeight;
@@ -57,6 +58,7 @@ public final class Screen {
 				close();
 			}
 		};
+		
 		final ComponentAdapter resizeAdapter = new ComponentAdapter() {
 			@Override
 			public void componentResized(final ComponentEvent c) {
@@ -77,12 +79,15 @@ public final class Screen {
 			}
 		};
 		
-		open = true;
-		visible = false;
+		
 		frame = new JFrame(title);
 		canvas = new Canvas();
 		mouse = new Mouse();
+		keyboard = new Keyboard();
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		
+		open = true;
+		visible = false;
 		initialWidth = width;
 		initialHeight = height;
 		canvasWidth = renderWidth = width;
@@ -93,6 +98,7 @@ public final class Screen {
 		canvas.addMouseListener(mouse);
 		canvas.addMouseMotionListener(mouse);
 		canvas.addMouseWheelListener(mouse);
+		canvas.addKeyListener(keyboard);
 		
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(closingAdapter);
@@ -214,11 +220,13 @@ public final class Screen {
 	public void setGameController(final IGameController newController) {
 		if (controller != null) {
 			mouse.removeListener(controller);
+			keyboard.removeListener(controller);
 		}
 		
 		controller = newController;
 		
 		mouse.addListener(controller);
+		keyboard.addListener(controller);
 	}
 	
 	/**

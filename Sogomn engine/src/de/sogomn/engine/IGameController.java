@@ -1,6 +1,11 @@
 package de.sogomn.engine;
 
-public interface IGameController extends ITickable, IMouseListener {
+/**
+ * The implementing class is the controller for a game.
+ * @author Sogomn
+ *
+ */
+public interface IGameController extends ITickable, IMouseListener, IKeyboardListener {
 	
 	//...
 	
