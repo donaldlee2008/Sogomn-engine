@@ -25,6 +25,7 @@ public final class Screen {
 	
 	private JFrame frame;
 	private Canvas canvas;
+	private Mouse mouse;
 	private BufferedImage image;
 	
 	private int initialWidth, initialHeight;
@@ -33,7 +34,7 @@ public final class Screen {
 	private int renderX, renderY;
 	private ResizeBehaviour resizeBehaviour;
 	
-	private ITickable mainTickable;
+	private IGameController controller;
 	private long lastTime;
 	
 	private static final float NANO_SECONDS_PER_SECOND = 1000000000.0f;
@@ -67,6 +68,12 @@ public final class Screen {
 				} else if (resizeBehaviour == ResizeBehaviour.KEEP_ASPECT_RATIO) {
 					fitContent();
 				}
+				
+				final float scaleX = (float)renderWidth / initialWidth;
+				final float scaleY = (float)renderHeight / initialHeight;
+				
+				mouse.setScale(scaleX, scaleY);
+				mouse.setOffset(renderX, renderY);
 			}
 		};
 		
@@ -74,6 +81,7 @@ public final class Screen {
 		visible = false;
 		frame = new JFrame(title);
 		canvas = new Canvas();
+		mouse = new Mouse();
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		initialWidth = width;
 		initialHeight = height;
@@ -82,6 +90,9 @@ public final class Screen {
 		resizeBehaviour = ResizeBehaviour.STRETCH;
 		
 		canvas.setPreferredSize(new Dimension(width, height));
+		canvas.addMouseListener(mouse);
+		canvas.addMouseMotionListener(mouse);
+		canvas.addMouseWheelListener(mouse);
 		
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(closingAdapter);
@@ -127,8 +138,8 @@ public final class Screen {
 			return;
 		}
 		
-		if (mainTickable != null) {
-			mainTickable.update(delta);
+		if (controller != null) {
+			controller.update(delta);
 		}
 	}
 	
@@ -140,10 +151,10 @@ public final class Screen {
 		final BufferStrategy bs = canvas.getBufferStrategy();
 		final Graphics2D g2 = (Graphics2D)bs.getDrawGraphics();
 		
-		if (mainTickable != null) {
+		if (controller != null) {
 			final Graphics2D g = image.createGraphics();
 			
-			mainTickable.draw(g);
+			controller.draw(g);
 			
 			g.dispose();
 		}
@@ -200,8 +211,14 @@ public final class Screen {
 	 * 
 	 * @param mainTickable The main ITickable object
 	 */
-	public void setMainTickable(final ITickable mainTickable) {
-		this.mainTickable = mainTickable;
+	public void setGameController(final IGameController newController) {
+		if (controller != null) {
+			mouse.removeListener(controller);
+		}
+		
+		controller = newController;
+		
+		mouse.addListener(controller);
 	}
 	
 	/**
