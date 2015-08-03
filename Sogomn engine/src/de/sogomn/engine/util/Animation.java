@@ -1,17 +1,15 @@
 package de.sogomn.engine.util;
 
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import de.sogomn.engine.ITickable;
+import de.sogomn.engine.IUpdatable;
 
 /**
- * A class to handle animations. The method "update" needs to be called in order to work.
- * Calling the "draw" method will not do anything.
+ * A class to handle animations. The method "update" needs to be called every frame in order to work.
  * @author Sogomn
  *
  */
-public final class Animation implements ITickable {
+public final class Animation implements IUpdatable {
 	
 	private BufferedImage[] images;
 	private int currentIndex;
@@ -34,6 +32,9 @@ public final class Animation implements ITickable {
 		maxLoops = INFINITE;
 	}
 	
+	/**
+	 * Updates the animation.
+	 */
 	@Override
 	public void update(final float delta) {
 		if (maxLoops != INFINITE && currentLoop >= maxLoops) {
@@ -50,11 +51,6 @@ public final class Animation implements ITickable {
 				currentLoop++;
 			}
 		}
-	}
-	
-	@Override
-	public void draw(final Graphics2D g) {
-		//...
 	}
 	
 	/**
