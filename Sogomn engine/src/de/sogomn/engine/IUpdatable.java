@@ -2,6 +2,7 @@ package de.sogomn.engine;
 
 /**
  * Defines an interface for objects that can be updated.
+ * Can be used in other context aswell.
  * @author Sogomn
  *
  */
