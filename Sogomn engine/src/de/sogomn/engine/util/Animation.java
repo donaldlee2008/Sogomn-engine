@@ -18,6 +18,9 @@ public final class Animation implements IUpdatable {
 	
 	private int maxLoops, currentLoop;
 	
+	/**
+	 * Infinite number of loops.
+	 */
 	public static final int INFINITE = -1;
 	
 	/**
