@@ -215,7 +215,7 @@ public final class Screen {
 	/**
 	 * Sets the main ITickable object this screen should update.
 	 * 
-	 * @param mainTickable The main ITickable object
+	 * @param newController The IGameController object to be notified every frame
 	 */
 	public void setGameController(final IGameController newController) {
 		if (controller != null) {

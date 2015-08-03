@@ -93,7 +93,7 @@ public class TCPConnection implements IClosable {
 	
 	/**
 	 * Writes a message to the connection.
-	 * @param data The message to be written
+	 * @param string The message to be written
 	 */
 	public void write(final String string) {
 		try {
