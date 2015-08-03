@@ -65,7 +65,8 @@ public final class Animation implements IUpdatable {
 	}
 	
 	/**
-	 * Sets the maximum amount on loops the animation will go through. Default is INFINITE (-1).
+	 * Sets the maximum amount on loops the animation will go through.
+	 * If set to INFINITE (-1) the animation has no max loops. This is default.
 	 * @param maxLoops The maximum amount of loops
 	 */
 	public void setMaxLoops(final int maxLoops) {
