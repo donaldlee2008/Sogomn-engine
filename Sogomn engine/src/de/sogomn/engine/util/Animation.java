@@ -36,6 +36,15 @@ public final class Animation implements IUpdatable {
 	}
 	
 	/**
+	 * Constructs an Animation object with the given delay between the images and all images in the sprite sheet.
+	 * @param delay The delay between the images in seconds
+	 * @param spriteSheet The SpriteSheet object containing the images
+	 */
+	public Animation(final float delay, final SpriteSheet spriteSheet) {
+		this(delay, spriteSheet.getSprites());
+	}
+	
+	/**
 	 * Updates the animation.
 	 */
 	@Override
@@ -47,6 +56,8 @@ public final class Animation implements IUpdatable {
 		timer += delta;
 		
 		if (timer >= delay) {
+			timer = 0;
+			
 			currentIndex++;
 			
 			if (currentIndex > images.length - 1) {
@@ -98,11 +109,32 @@ public final class Animation implements IUpdatable {
 	}
 	
 	/**
+	 * Returns the image at the given index.
+	 * @param index The index
+	 * @return The image or null if the index is out of range
+	 */
+	public BufferedImage getImage(final int index) {
+		if (index < 0 || index > length() - 1) {
+			return null;
+		}
+		
+		return images[index];
+	}
+	
+	/**
 	 * Returns the current loop the animation is in.
 	 * @return The loop count
 	 */
 	public int getCurrentLoop() {
 		return currentLoop;
+	}
+	
+	/**
+	 * Returns the amount of frames in the animation.
+	 * @return The length of the animation
+	 */
+	public int length() {
+		return images.length;
 	}
 	
 }

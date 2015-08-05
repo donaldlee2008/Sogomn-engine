@@ -125,6 +125,38 @@ public final class SpriteSheet {
 	}
 	
 	/**
+	 * Returns the width of each sprite.
+	 * @return The width
+	 */
+	public int getSpriteWidth() {
+		return spriteWidth;
+	}
+	
+	/**
+	 * Returns the height of each sprite.
+	 * @return The height
+	 */
+	public int getSpriteHeight() {
+		return spriteHeight;
+	}
+	
+	/**
+	 * Returns the amount of sprites per row.
+	 * @return The sprites per row
+	 */
+	public int getSpritesWide() {
+		return spritesWide;
+	}
+	
+	/**
+	 * Returns the amount of sprites per column.
+	 * @return The sprites per column
+	 */
+	public int getSpritesHigh() {
+		return spritesHigh;
+	}
+	
+	/**
 	 * Holds the different orientations for the SpriteSheet class.
 	 * @author Sogomn
 	 *
