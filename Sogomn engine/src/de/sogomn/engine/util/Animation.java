@@ -165,7 +165,7 @@ public final class Animation implements IUpdatable {
 	 * @return Whether the animation is looping
 	 */
 	public boolean isLooping() {
-		final boolean looping = maxLoops != INFINITE && currentLoop >= maxLoops;
+		final boolean looping = (maxLoops == INFINITE || currentLoop < maxLoops);
 		
 		return looping;
 	}
