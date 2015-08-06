@@ -63,7 +63,7 @@ public final class Animation implements IUpdatable {
 	 */
 	@Override
 	public void update(final float delta) {
-		if (maxLoops != INFINITE && currentLoop >= maxLoops) {
+		if (!isLooping()) {
 			return;
 		}
 		
@@ -88,6 +88,14 @@ public final class Animation implements IUpdatable {
 	public void reset() {
 		timer = 0;
 		currentIndex = currentLoop = 0;
+	}
+	
+	/**
+	 * Sets the delay between the frames.
+	 * @param delay The delay
+	 */
+	public void setDelay(final float delay) {
+		this.delay = delay;
 	}
 	
 	/**
@@ -150,6 +158,16 @@ public final class Animation implements IUpdatable {
 	 */
 	public int length() {
 		return images.length;
+	}
+	
+	/**
+	 * Returns true if the animation is still looping; false otherwise.
+	 * @return Whether the animation is looping
+	 */
+	public boolean isLooping() {
+		final boolean looping = maxLoops != INFINITE && currentLoop >= maxLoops;
+		
+		return looping;
 	}
 	
 	/**
