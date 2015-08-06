@@ -45,7 +45,7 @@ public final class Screen {
 	
 	/**
 	 * Constructs a new Screen object with the given width, height and title.
-	 * The screen can still be resized. The rendered image will be streched then.
+	 * The screen can be resized.
 	 * @param width The screen width
 	 * @param height The screen height
 	 * @param title The screen title
@@ -80,7 +80,6 @@ public final class Screen {
 			}
 		};
 		
-		
 		frame = new JFrame(title);
 		canvas = new Canvas();
 		mouse = new Mouse();
@@ -88,11 +87,8 @@ public final class Screen {
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
 		open = true;
-		visible = false;
-		initialWidth = width;
-		initialHeight = height;
-		canvasWidth = renderWidth = width;
-		canvasHeight = renderHeight = height;
+		initialWidth = canvasWidth = renderWidth = width;
+		initialHeight = canvasHeight = renderHeight = height;
 		resizeBehaviour = ResizeBehaviour.STRETCH;
 		
 		canvas.setPreferredSize(new Dimension(width, height));
@@ -176,7 +172,7 @@ public final class Screen {
 	/**
 	 * Updates the screen and calls the methods in the ITickable object, if existent.
 	 */
-	public void update() {
+	public synchronized void update() {
 		if (!isOpen()) {
 			return;
 		}
@@ -208,7 +204,7 @@ public final class Screen {
 	/**
 	 * Hides the screen. It can not be updated anymore.
 	 */
-	public void hide() {
+	public synchronized void hide() {
 		if (!isOpen()) {
 			return;
 		}
@@ -220,7 +216,7 @@ public final class Screen {
 	/**
 	 * Closes the screen.
 	 */
-	public void close() {
+	public synchronized void close() {
 		hide();
 		open = false;
 		frame.dispose();
