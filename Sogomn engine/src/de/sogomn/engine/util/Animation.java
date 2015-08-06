@@ -1,6 +1,7 @@
 package de.sogomn.engine.util;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import de.sogomn.engine.IUpdatable;
 
@@ -18,6 +19,8 @@ public final class Animation implements IUpdatable {
 	
 	private int maxLoops, currentLoop;
 	
+	private ArrayList<IAnimationListener> listeners;
+	
 	/**
 	 * Infinite number of loops.
 	 */
@@ -33,6 +36,7 @@ public final class Animation implements IUpdatable {
 		this.images = images;
 		
 		maxLoops = INFINITE;
+		listeners = new ArrayList<IAnimationListener>();
 	}
 	
 	/**
@@ -42,6 +46,16 @@ public final class Animation implements IUpdatable {
 	 */
 	public Animation(final float delay, final SpriteSheet spriteSheet) {
 		this(delay, spriteSheet.getSprites());
+	}
+	
+	private void notifyListeners() {
+		synchronized (listeners) {
+			for (int i = 0; i < listeners.size(); i++) {
+				final IAnimationListener listener = listeners.get(i);
+				
+				listener.looped(this);
+			}
+		}
 	}
 	
 	/**
@@ -57,12 +71,13 @@ public final class Animation implements IUpdatable {
 		
 		if (timer >= delay) {
 			timer = 0;
-			
 			currentIndex++;
 			
 			if (currentIndex > images.length - 1) {
 				currentIndex = 0;
 				currentLoop++;
+				
+				notifyListeners();
 			}
 		}
 	}
@@ -135,6 +150,26 @@ public final class Animation implements IUpdatable {
 	 */
 	public int length() {
 		return images.length;
+	}
+	
+	/**
+	 * Adds the passed object to the listeners.
+	 * @param listener The new listener
+	 */
+	public void addListener(final IAnimationListener listener) {
+		synchronized (listeners) {
+			listeners.add(listener);
+		}
+	}
+	
+	/**
+	 * Removes the passed object from the listeners.
+	 * @param listener The listener to be removed
+	 */
+	public void removeListener(final IAnimationListener listener) {
+		synchronized (listeners) {
+			listeners.remove(listener);
+		}
 	}
 	
 }
