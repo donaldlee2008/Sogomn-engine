@@ -14,7 +14,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
 /**
- * This class represents a screen. Uses a JFrame internally which holds the content and can be shown with the show() method.
+ * This class represents a screen.
+ * Uses JFrame and Canvas classes internally.
  * @author Sogomn
  *
  */
@@ -135,12 +136,12 @@ public final class Screen {
 			renderHeight = (int)(initialHeight * ratioY);
 		}
 		
-		renderX = canvasWidth / 2 - renderWidth / 2;
-		renderY = canvasHeight / 2 - renderHeight / 2;
+		renderX = (canvasWidth / 2) - (renderWidth / 2);
+		renderY = (canvasHeight / 2) - (renderHeight / 2);
 	}
 	
 	private void updateMainTickable(final float delta) {
-		if (!visible) {
+		if (!isVisible()) {
 			return;
 		}
 		
@@ -150,7 +151,7 @@ public final class Screen {
 	}
 	
 	private void drawMainTickable() {
-		if (!visible) {
+		if (!isVisible()) {
 			return;
 		}
 		
@@ -167,6 +168,7 @@ public final class Screen {
 		
 		g2.clearRect(0, 0, canvasWidth, canvasHeight);
 		g2.drawImage(image, renderX, renderY, renderWidth, renderHeight, null);
+		
 		g2.dispose();
 		bs.show();
 	}
@@ -175,6 +177,10 @@ public final class Screen {
 	 * Updates the screen and calls the methods in the ITickable object, if existent.
 	 */
 	public void update() {
+		if (!isOpen()) {
+			return;
+		}
+		
 		final long now = System.nanoTime();
 		final float elapsed = (now - lastTime) / NANO_SECONDS_PER_SECOND;
 		
@@ -188,6 +194,10 @@ public final class Screen {
 	 * Shows the screen.
 	 */
 	public void show() {
+		if (!isOpen()) {
+			return;
+		}
+		
 		frame.setVisible(true);
 		canvas.createBufferStrategy(BUFFER_COUNT);
 		
@@ -196,9 +206,13 @@ public final class Screen {
 	}
 	
 	/**
-	 * Hides the screen. The methods of the main ITickable object won't get called.
+	 * Hides the screen. It can not be updated anymore.
 	 */
 	public void hide() {
+		if (!isOpen()) {
+			return;
+		}
+		
 		visible = false;
 		frame.setVisible(false);
 	}
@@ -230,6 +244,14 @@ public final class Screen {
 	}
 	
 	/**
+	 * Sets the resizable flag of the screen.
+	 * @param resizable The state
+	 */
+	public void setResizable(final boolean resizable) {
+		frame.setResizable(resizable);
+	}
+	
+	/**
 	 * Sets the title for the screen.
 	 * @param title The title the screen should have from now on
 	 */
@@ -238,8 +260,8 @@ public final class Screen {
 	}
 	
 	/**
-	 * Sets the resize behaviour of the screen. Either stretched or fitted.
-	 * @param resizeBehaviour The resize behaviour
+	 * Sets the resize behavior of the screen. Either stretched or fitted.
+	 * @param resizeBehaviour The resize behavior
 	 */
 	public void setResizeBehaviour(final ResizeBehaviour resizeBehaviour) {
 		this.resizeBehaviour = resizeBehaviour;
@@ -262,7 +284,7 @@ public final class Screen {
 	}
 	
 	/**
-	 * Returns wheter the screen is visible.
+	 * Returns whether the screen is visible.
 	 * @return The state
 	 */
 	public boolean isVisible() {
@@ -310,15 +332,15 @@ public final class Screen {
 	}
 	
 	/**
-	 * Returns the current resize behaviour of the screen.
-	 * @return The resize behaviour
+	 * Returns the current resize behavior of the screen.
+	 * @return The resize behavior
 	 */
 	public ResizeBehaviour getResizeBehaviour() {
 		return resizeBehaviour;
 	}
 	
 	/**
-	 * Holds the different resize behaviours for the Screen class.
+	 * Holds the different resize behaviors for the Screen class.
 	 * @author Sogomn
 	 *
 	 */
