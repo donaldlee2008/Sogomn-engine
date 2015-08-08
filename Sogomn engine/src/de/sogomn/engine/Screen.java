@@ -288,6 +288,14 @@ public final class Screen {
 	}
 	
 	/**
+	 * Returns whether the screen is resizable or not.
+	 * @return True if it is resizable; false otherwise
+	 */
+	public boolean isResizable() {
+		return frame.isResizable();
+	}
+	
+	/**
 	 * Returns the inial width of the screen. This will not change, even when resized.
 	 * @return The width
 	 */
@@ -317,6 +325,24 @@ public final class Screen {
 	 */
 	public int getHeight() {
 		return canvasHeight;
+	}
+	
+	/**
+	 * Returns the width of the content.
+	 * Differs from the canvas width when the resize behavior is set to KEEP_ASPECT_RATIO.
+	 * @return The render width
+	 */
+	public int getRenderWidth() {
+		return renderWidth;
+	}
+	
+	/**
+	 * Returns the height 0of the content.
+	 * Differs from the canvas width when the resize behavior is set to KEEP_ASPECT_RATIO.
+	 * @return The render height
+	 */
+	public int getRenderHeight() {
+		return renderHeight;
 	}
 	
 	/**
