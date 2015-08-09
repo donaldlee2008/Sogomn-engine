@@ -104,16 +104,16 @@ public final class Background implements ITickable {
 	}
 	
 	/**
-	 * Sets the background x position
-	 * @param x The position
+	 * Sets the background x coordinate
+	 * @param x The coordinate
 	 */
 	public void setX(final double x) {
 		this.x = x;
 	}
 	
 	/**
-	 * Sets the background y position
-	 * @param y The position
+	 * Sets the background y coordinate
+	 * @param y The coordinate
 	 */
 	public void setY(final double y) {
 		this.y = y;
@@ -154,16 +154,16 @@ public final class Background implements ITickable {
 	}
 	
 	/**
-	 * Returns the current x position of the background.
-	 * @return The position
+	 * Returns the current x coordinate of the background.
+	 * @return The coordinate
 	 */
 	public double getX() {
 		return x;
 	}
 	
 	/**
-	 * Returns the current y position of the background.
-	 * @return The position
+	 * Returns the current y coordinate of the background.
+	 * @return The coordinate
 	 */
 	public double getY() {
 		return y;
