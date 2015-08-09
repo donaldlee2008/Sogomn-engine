@@ -136,7 +136,7 @@ public final class Screen {
 		renderY = (canvasHeight / 2) - (renderHeight / 2);
 	}
 	
-	private void updateMainTickable(final float delta) {
+	private void updateGameController(final float delta) {
 		if (!isVisible()) {
 			return;
 		}
@@ -146,7 +146,7 @@ public final class Screen {
 		}
 	}
 	
-	private void drawMainTickable() {
+	private void drawGameController() {
 		if (!isVisible()) {
 			return;
 		}
@@ -180,8 +180,8 @@ public final class Screen {
 		final long now = System.nanoTime();
 		final float elapsed = (now - lastTime) / NANO_SECONDS_PER_SECOND;
 		
-		updateMainTickable(elapsed);
-		drawMainTickable();
+		updateGameController(elapsed);
+		drawGameController();
 		
 		lastTime = now;
 	}
