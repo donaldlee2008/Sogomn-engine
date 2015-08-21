@@ -1,5 +1,14 @@
 package de.sogomn.engine.util;
 
+import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.KEY_INTERPOLATION;
+import static java.awt.RenderingHints.KEY_RENDERING;
+import static java.awt.RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;
+import static java.awt.RenderingHints.VALUE_ANTIALIAS_OFF;
+import static java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -83,6 +92,21 @@ public final class ImageUtils {
 		g.dispose();
 		
 		return newImage;
+	}
+	
+	/**
+	 * Applies low graphics settings to the given Graphics2D object.
+	 * - Antialiasing: OFF
+	 * - Rendering: SPEED
+	 * - Interpolation: NEAREST_NEIGHBOUR
+	 * - Alpha interpolation: SPEED
+	 * @param g The Graphics2D object
+	 */
+	public static void applyLowGraphics(final Graphics2D g) {
+		g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
+		g.setRenderingHint(KEY_RENDERING, VALUE_RENDER_SPEED);
+		g.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+		g.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_SPEED);
 	}
 	
 }

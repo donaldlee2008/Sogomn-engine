@@ -13,6 +13,8 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 
+import de.sogomn.engine.util.ImageUtils;
+
 /**
  * This class represents a screen.
  * Uses JFrame and Canvas classes internally.
@@ -153,6 +155,8 @@ public final class Screen {
 		
 		final BufferStrategy bs = canvas.getBufferStrategy();
 		final Graphics2D g2 = (Graphics2D)bs.getDrawGraphics();
+		
+		ImageUtils.applyLowGraphics(g2);
 		
 		if (controller != null) {
 			final Graphics2D g = image.createGraphics();
