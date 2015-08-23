@@ -30,6 +30,11 @@ public final class Sound {
 	private static final int BUFFER_SIZE = 24;
 	
 	/**
+	 * Passed to loop infinitely.
+	 */
+	public static final int INFINITE = Clip.LOOP_CONTINUOUSLY;
+	
+	/**
 	 * Returned instead of an id if an error occurs.
 	 */
 	public static final int ERROR = -1;
@@ -42,15 +47,16 @@ public final class Sound {
 	}
 	
 	/**
-	 * Plays the sound.
+	 * Plays the sound a given amount of times.
+	 * @param loops The amount of times the sound should be played
 	 * @return The clip id or ERROR (-1) in case of faliure
 	 */
-	public int play() {
+	public int play(final int loops) {
 		try {
 			final Clip clip = AudioSystem.getClip();
 			
 			clip.open(format, data, 0, data.length);
-			clip.start();
+			clip.loop(loops);
 			clips.put(currentId, clip);
 			
 			return currentId++;
@@ -59,6 +65,14 @@ public final class Sound {
 			
 			return ERROR;
 		}
+	}
+	
+	/**
+	 * Loops the sound until "stop" is called.
+	 * @return The clip id or ERROR (-1) in case of faliure
+	 */
+	public int play() {
+		return play(INFINITE);
 	}
 	
 	/**
