@@ -1,5 +1,6 @@
 package de.sogomn.engine.util;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public final class Sound {
 			final Clip clip = AudioSystem.getClip();
 			
 			clip.open(format, data, 0, data.length);
-			clip.loop(loops);
+			clip.loop(loops - 1);
 			clips.put(currentId, clip);
 			
 			return currentId++;
@@ -97,10 +98,10 @@ public final class Sound {
 	 */
 	public static Sound loadSound(final String path) {
 		try {
-			final AudioInputStream in = AudioSystem.getAudioInputStream(Sound.class.getResourceAsStream(path));
+			final AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(Sound.class.getResourceAsStream(path)));
+			final AudioFormat format = in.getFormat();
 			final ByteArrayOutputStream out = new ByteArrayOutputStream();
 			final byte[] buffer = new byte[BUFFER_SIZE];
-			final AudioFormat format = in.getFormat();
 			
 			while (in.read(buffer, 0, BUFFER_SIZE) != -1) {
 				out.write(buffer, 0, BUFFER_SIZE);
