@@ -33,7 +33,7 @@ public final class Sound {
 	/**
 	 * Passed to loop infinitely.
 	 */
-	public static final int INFINITE = Clip.LOOP_CONTINUOUSLY;
+	public static final int INFINITE = Clip.LOOP_CONTINUOUSLY + 1;
 	
 	/**
 	 * Returned instead of an id if an error occurs.
