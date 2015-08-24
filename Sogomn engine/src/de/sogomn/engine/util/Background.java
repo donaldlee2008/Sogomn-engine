@@ -90,7 +90,7 @@ public final class Background implements ITickable {
 	}
 	
 	/**
-	 * Draws the background. The image will loop.
+	 * Draws the background.
 	 */
 	@Override
 	public void draw(final Graphics2D g) {
@@ -98,9 +98,16 @@ public final class Background implements ITickable {
 		final int offsetY = (int)(y - height * Math.signum(verticalSpeed));
 		
 		g.drawImage(image, (int)x, (int)y, null);
-		g.drawImage(image, offsetX, (int)y, null);
-		g.drawImage(image, (int)x, offsetY, null);
-		g.drawImage(image, offsetX, offsetY, null);
+		
+		if (offsetX != 0 && offsetY != 0) {
+			g.drawImage(image, offsetX, (int)y, null);
+			g.drawImage(image, (int)x, offsetY, null);
+			g.drawImage(image, offsetX, offsetY, null);
+		} else if (offsetX != 0) {
+			g.drawImage(image, offsetX, (int)y, null);
+		} else if (offsetY != 0) {
+			g.drawImage(image, (int)x, offsetY, null);
+		}
 	}
 	
 	/**
