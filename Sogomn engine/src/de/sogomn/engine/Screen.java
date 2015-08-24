@@ -10,6 +10,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
@@ -28,6 +29,7 @@ public final class Screen {
 	private Mouse mouse;
 	private Keyboard keyboard;
 	private BufferedImage image;
+	private int[] pixelRaster;
 	
 	private String title;
 	private boolean open, visible;
@@ -39,6 +41,7 @@ public final class Screen {
 	private ResizeBehaviour resizeBehaviour;
 	
 	private IGameController controller;
+	private IShader shader;
 	private long lastTime;
 	
 	private static final float NANO_SECONDS_PER_SECOND = 1000000000.0f;
@@ -87,6 +90,7 @@ public final class Screen {
 		mouse = new Mouse();
 		keyboard = new Keyboard();
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		pixelRaster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 		
 		open = true;
 		initialWidth = canvasWidth = renderWidth = width;
@@ -164,6 +168,8 @@ public final class Screen {
 			controller.draw(g);
 			
 			g.dispose();
+			
+			applyShader();
 		}
 		
 		g2.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -171,6 +177,16 @@ public final class Screen {
 		
 		g2.dispose();
 		bs.show();
+	}
+	
+	private void applyShader() {
+		if (!isVisible()) {
+			return;
+		}
+		
+		if (shader != null) {
+			shader.apply(pixelRaster);
+		}
 	}
 	
 	/**
@@ -227,7 +243,7 @@ public final class Screen {
 	}
 	
 	/**
-	 * Sets the main ITickable object this screen should update.
+	 * Sets the game controller this screen should update.
 	 * 
 	 * @param newController The IGameController object to be notified every frame
 	 */
@@ -241,6 +257,14 @@ public final class Screen {
 		
 		mouse.addListener(controller);
 		keyboard.addListener(controller);
+	}
+	
+	/**
+	 * Sets the shader to be applied to the screen image.
+	 * @param shader The shader
+	 */
+	public void setShader(final IShader shader) {
+		this.shader = shader;
 	}
 	
 	/**
