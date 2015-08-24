@@ -28,7 +28,7 @@ public final class Screen {
 	private Canvas canvas;
 	private Mouse mouse;
 	private Keyboard keyboard;
-	private BufferedImage image;
+	private BufferedImage screenImage;
 	private int[] pixelRaster;
 	
 	private String title;
@@ -99,8 +99,8 @@ public final class Screen {
 		canvas = new Canvas();
 		mouse = new Mouse();
 		keyboard = new Keyboard();
-		image = frame.getGraphicsConfiguration().createCompatibleImage(width, height);
-		pixelRaster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+		screenImage = frame.getGraphicsConfiguration().createCompatibleImage(width, height);
+		pixelRaster = ((DataBufferInt)screenImage.getRaster().getDataBuffer()).getData();
 		
 		open = true;
 		initialWidth = canvasWidth = renderWidth = width;
@@ -152,7 +152,7 @@ public final class Screen {
 		renderY = (canvasHeight / 2) - (renderHeight / 2);
 	}
 	
-	private void updateGameController(final float delta) {
+	private void update(final float delta) {
 		if (!isVisible()) {
 			return;
 		}
@@ -162,7 +162,7 @@ public final class Screen {
 		}
 	}
 	
-	private void drawGameController() {
+	private void draw() {
 		if (!isVisible()) {
 			return;
 		}
@@ -173,7 +173,7 @@ public final class Screen {
 		ImageUtils.applyLowGraphics(g2);
 		
 		if (controller != null) {
-			final Graphics2D g = image.createGraphics();
+			final Graphics2D g = screenImage.createGraphics();
 			
 			controller.draw(g);
 			
@@ -183,7 +183,7 @@ public final class Screen {
 		}
 		
 		g2.clearRect(0, 0, canvasWidth, canvasHeight);
-		g2.drawImage(image, renderX, renderY, renderWidth, renderHeight, null);
+		g2.drawImage(screenImage, renderX, renderY, renderWidth, renderHeight, null);
 		
 		g2.dispose();
 		bs.show();
@@ -210,8 +210,8 @@ public final class Screen {
 		final long now = System.nanoTime();
 		final float elapsed = (now - lastTime) / NANO_SECONDS_PER_SECOND;
 		
-		updateGameController(elapsed);
-		drawGameController();
+		update(elapsed);
+		draw();
 		
 		lastTime = now;
 	}
@@ -287,7 +287,7 @@ public final class Screen {
 	}
 	
 	/**
-	 * Sets the title for the screen.
+	 * Sets the title of the screen.
 	 * @param title The title the screen should have from now on
 	 */
 	public void setTitle(final String title) {
@@ -303,7 +303,7 @@ public final class Screen {
 	}
 	
 	/**
-	 * Sets the icon for this screen. It will be displayed on the top left of the frame as well as in the taskbar.
+	 * Sets the icon of the screen. It will be displayed on the top left of the frame as well as in the taskbar.
 	 * @param image The icon as an image
 	 */
 	public void setIcon(final BufferedImage image) {
@@ -319,7 +319,7 @@ public final class Screen {
 	}
 	
 	/**
-	 * Returns whether the screen is visible.
+	 * Returns whether the screen is visible or not.
 	 * @return The state
 	 */
 	public boolean isVisible() {
