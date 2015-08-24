@@ -39,6 +39,7 @@ public final class Screen {
 	private int renderWidth, renderHeight;
 	private int renderX, renderY;
 	private ResizeBehaviour resizeBehaviour;
+	private long resizeTimer;
 	
 	private IGameController controller;
 	private IShader shader;
@@ -47,6 +48,7 @@ public final class Screen {
 	private static final float NANO_SECONDS_PER_SECOND = 1000000000.0f;
 	private static final int BUFFER_COUNT = 2;
 	private static final String NO_TITLE = "";
+	private static final double RESIZE_INTERVAL = 0.75;
 	
 	/**
 	 * Constructs a new Screen object with the given width, height and title.
@@ -68,6 +70,12 @@ public final class Screen {
 		final ComponentAdapter resizeAdapter = new ComponentAdapter() {
 			@Override
 			public void componentResized(final ComponentEvent c) {
+				final long now = System.currentTimeMillis();
+				
+				if (now - resizeTimer < RESIZE_INTERVAL) {
+					return;
+				}
+				
 				canvasWidth = canvas.getWidth();
 				canvasHeight = canvas.getHeight();
 				
@@ -82,6 +90,8 @@ public final class Screen {
 				
 				mouse.setScale(scaleX, scaleY);
 				mouse.setOffset(renderX, renderY);
+				
+				resizeTimer = now;
 			}
 		};
 		
@@ -89,7 +99,7 @@ public final class Screen {
 		canvas = new Canvas();
 		mouse = new Mouse();
 		keyboard = new Keyboard();
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		image = frame.getGraphicsConfiguration().createCompatibleImage(width, height);
 		pixelRaster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 		
 		open = true;
@@ -216,6 +226,7 @@ public final class Screen {
 		
 		frame.setVisible(true);
 		canvas.createBufferStrategy(BUFFER_COUNT);
+		canvas.requestFocus();
 		
 		lastTime = System.nanoTime();
 		visible = true;
