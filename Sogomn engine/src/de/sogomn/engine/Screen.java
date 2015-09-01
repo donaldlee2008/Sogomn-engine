@@ -290,7 +290,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Sets the resize behavior of the screen. Either stretched or fitted.
+	 * Sets the resize behavior of the screen.
 	 * @param resizeBehaviour The resize behavior
 	 */
 	public void setResizeBehaviour(final ResizeBehavior resizeBehaviour) {
