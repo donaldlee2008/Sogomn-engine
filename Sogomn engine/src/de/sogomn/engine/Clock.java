@@ -12,7 +12,7 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	private long lastTime;
 	private long ticks;
 	
-	private static final float NANO_SECONDS_PER_SECOND = 1000000000.0f;
+	private static final float NANO_SECONDS_PER_SECOND = 1000000000f;
 	
 	/**
 	 * Constructs a new Clock object.

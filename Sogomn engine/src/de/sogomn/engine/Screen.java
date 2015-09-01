@@ -31,8 +31,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	private Keyboard keyboard;
 	
 	private BufferedImage screenImage;
-	private BufferStrategy bufferStrategy;
-	private Graphics2D canvasGraphics, imageGraphics;
+	private Graphics2D imageGraphics;
 	private int[] pixelRaster;
 	private IShader shader;
 	
@@ -43,12 +42,10 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	private int canvasWidth, canvasHeight;
 	private int renderWidth, renderHeight;
 	private int renderX, renderY;
-	private ResizeBehaviour resizeBehaviour;
-	private long resizeTimer;
+	private ResizeBehavior resizeBehavior;
 	
 	private static final int BUFFER_COUNT = 2;
 	private static final String NO_TITLE = "";
-	private static final double RESIZE_INTERVAL = 0.75;
 	
 	/**
 	 * Constructs a new Screen object with the given width, height and title.
@@ -70,19 +67,15 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		final ComponentAdapter resizeAdapter = new ComponentAdapter() {
 			@Override
 			public void componentResized(final ComponentEvent c) {
-				final long now = System.currentTimeMillis();
-				
-				if (now - resizeTimer < RESIZE_INTERVAL) {
-					return;
-				}
-				
 				canvasWidth = canvas.getWidth();
 				canvasHeight = canvas.getHeight();
 				
-				if (resizeBehaviour == ResizeBehaviour.STRETCH) {
-					stretchContent();
-				} else if (resizeBehaviour == ResizeBehaviour.KEEP_ASPECT_RATIO) {
-					fitContent();
+				if (resizeBehavior == ResizeBehavior.STRETCH) {
+					stretchContentSize();
+				} else if (resizeBehavior == ResizeBehavior.KEEP_ASPECT_RATIO) {
+					fitContentSize();
+				} else if (resizeBehavior == ResizeBehavior.KEEP_SIZE) {
+					keepContentSize();
 				}
 				
 				final float scaleX = (float)renderWidth / initialWidth;
@@ -90,8 +83,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 				
 				mouse.setScale(scaleX, scaleY);
 				mouse.setOffset(renderX, renderY);
-				
-				resizeTimer = now;
 			}
 		};
 		
@@ -105,7 +96,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		open = true;
 		initialWidth = canvasWidth = renderWidth = width;
 		initialHeight = canvasHeight = renderHeight = height;
-		resizeBehaviour = ResizeBehaviour.STRETCH;
+		resizeBehavior = ResizeBehavior.STRETCH;
 		
 		canvas.setPreferredSize(new Dimension(width, height));
 		canvas.addMouseListener(mouse);
@@ -132,22 +123,18 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	private void initGraphics() {
 		canvas.createBufferStrategy(BUFFER_COUNT);
-		bufferStrategy = canvas.getBufferStrategy();
-		
-		canvasGraphics = (Graphics2D)bufferStrategy.getDrawGraphics();
 		imageGraphics = screenImage.createGraphics();
 		
-		ImageUtils.applyLowGraphics(canvasGraphics);
 		ImageUtils.applyLowGraphics(imageGraphics);
 	}
 	
-	private void stretchContent() {
+	private void stretchContentSize() {
 		renderWidth = canvasWidth;
 		renderHeight = canvasHeight;
 		renderX = renderY = 0;
 	}
 	
-	private void fitContent() {
+	private void fitContentSize() {
 		final float ratioX = (float)canvasWidth / initialWidth;
 		final float ratioY = (float)canvasHeight / initialHeight;
 		
@@ -158,6 +145,14 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			renderWidth = (int)(initialWidth * ratioY);
 			renderHeight = (int)(initialHeight * ratioY);
 		}
+		
+		renderX = (canvasWidth / 2) - (renderWidth / 2);
+		renderY = (canvasHeight / 2) - (renderHeight / 2);
+	}
+	
+	private void keepContentSize() {
+		renderWidth = initialWidth;
+		renderHeight = initialHeight;
 		
 		renderX = (canvasWidth / 2) - (renderWidth / 2);
 		renderY = (canvasHeight / 2) - (renderHeight / 2);
@@ -189,9 +184,15 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			shader.apply(pixelRaster);
 		}
 		
+		final BufferStrategy bufferStrategy = canvas.getBufferStrategy();
+		final Graphics2D canvasGraphics = (Graphics2D)bufferStrategy.getDrawGraphics();
+		
+		ImageUtils.applyLowGraphics(canvasGraphics);
+		
 		canvasGraphics.clearRect(0, 0, canvasWidth, canvasHeight);
 		canvasGraphics.drawImage(screenImage, renderX, renderY, renderWidth, renderHeight, null);
 		
+		canvasGraphics.dispose();
 		bufferStrategy.show();
 	}
 	
@@ -204,9 +205,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		}
 		
 		frame.setVisible(true);
-		canvas.requestFocus();
-		
 		initGraphics();
+		canvas.requestFocus();
 		
 		visible = true;
 	}
@@ -221,7 +221,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		
 		visible = false;
 		imageGraphics.dispose();
-		canvasGraphics.dispose();
 		frame.setVisible(false);
 	}
 	
@@ -294,8 +293,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Sets the resize behavior of the screen. Either stretched or fitted.
 	 * @param resizeBehaviour The resize behavior
 	 */
-	public void setResizeBehaviour(final ResizeBehaviour resizeBehaviour) {
-		this.resizeBehaviour = resizeBehaviour;
+	public void setResizeBehaviour(final ResizeBehavior resizeBehaviour) {
+		this.resizeBehavior = resizeBehaviour;
 	}
 	
 	/**
@@ -392,8 +391,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Returns the current resize behavior of the screen.
 	 * @return The resize behavior
 	 */
-	public ResizeBehaviour getResizeBehaviour() {
-		return resizeBehaviour;
+	public ResizeBehavior getResizeBehaviour() {
+		return resizeBehavior;
 	}
 	
 	/**
@@ -401,10 +400,11 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * @author Sogomn
 	 *
 	 */
-	public enum ResizeBehaviour {
+	public enum ResizeBehavior {
 		
 		STRETCH,
-		KEEP_ASPECT_RATIO;
+		KEEP_ASPECT_RATIO,
+		KEEP_SIZE;
 		
 	}
 	
