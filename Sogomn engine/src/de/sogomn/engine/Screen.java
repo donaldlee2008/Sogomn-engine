@@ -25,6 +25,8 @@ import de.sogomn.engine.util.ImageUtils;
  */
 public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
+	private boolean open;
+	
 	private JFrame frame;
 	private Canvas canvas;
 	private Mouse mouse;
@@ -34,9 +36,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	private Graphics2D imageGraphics;
 	private int[] pixelRaster;
 	private IShader shader;
-	
-	private String title;
-	private boolean open, visible;
 	
 	private int initialWidth, initialHeight;
 	private int canvasWidth, canvasHeight;
@@ -55,8 +54,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * @param title The screen title
 	 */
 	public Screen(final int width, final int height, final String title) {
-		this.title = title;
-		
 		final WindowAdapter closingAdapter = new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent w) {
@@ -76,6 +73,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 					fitContentSize();
 				} else if (resizeBehavior == ResizeBehavior.KEEP_SIZE) {
 					keepContentSize();
+				} else if (resizeBehavior == ResizeBehavior.DO_NOTHING) {
+					//...
 				}
 				
 				final float scaleX = (float)renderWidth / initialWidth;
@@ -207,8 +206,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		frame.setVisible(true);
 		initGraphics();
 		canvas.requestFocus();
-		
-		visible = true;
 	}
 	
 	/**
@@ -219,7 +216,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			return;
 		}
 		
-		visible = false;
 		imageGraphics.dispose();
 		frame.setVisible(false);
 	}
@@ -286,7 +282,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * @param title The title the screen should have from now on
 	 */
 	public void setTitle(final String title) {
-		this.title = title;
+		frame.setTitle(title);
 	}
 	
 	/**
@@ -318,7 +314,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * @return The state
 	 */
 	public boolean isVisible() {
-		return visible;
+		return frame.isVisible();
 	}
 	
 	/**
@@ -363,7 +359,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Returns the width of the content.
-	 * Differs from the canvas width when the resize behavior is set to KEEP_ASPECT_RATIO.
+	 * May differ from the canvas width depending on the resize behaviour.
 	 * @return The render width
 	 */
 	public int getRenderWidth() {
@@ -371,8 +367,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Returns the height 0of the content.
-	 * Differs from the canvas width when the resize behavior is set to KEEP_ASPECT_RATIO.
+	 * Returns the height of the content.
+	 * May differ from the canvas width depending on the resize behaviour.
 	 * @return The render height
 	 */
 	public int getRenderHeight() {
@@ -384,7 +380,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * @return The title
 	 */
 	public String getTitle() {
-		return title;
+		return frame.getTitle();
 	}
 	
 	/**
@@ -404,7 +400,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		
 		STRETCH,
 		KEEP_ASPECT_RATIO,
-		KEEP_SIZE;
+		KEEP_SIZE,
+		DO_NOTHING;
 		
 	}
 	
