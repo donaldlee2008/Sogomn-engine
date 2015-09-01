@@ -5,14 +5,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
 
-final class Mouse implements MouseListener, MouseMotionListener, MouseWheelListener {
+final class Mouse extends AbstractListenerContainer<IMouseListener> implements MouseListener, MouseMotionListener, MouseWheelListener {
 	
 	private float scaleX, scaleY;
 	private int offsetX, offsetY;
-	
-	private ArrayList<IMouseListener> listeners;
 	
 	private static final boolean PRESSED = true;
 	private static final boolean RELEASED = false;
@@ -22,7 +19,6 @@ final class Mouse implements MouseListener, MouseMotionListener, MouseWheelListe
 	public Mouse() {
 		scaleX = scaleY = NO_SCALE;
 		offsetX = offsetY = NO_OFFSET;
-		listeners = new ArrayList<IMouseListener>();
 	}
 	
 	private int getRelativeX(final int x) {
@@ -43,7 +39,7 @@ final class Mouse implements MouseListener, MouseMotionListener, MouseWheelListe
 		final int button = m.getButton();
 		
 		synchronized (listeners) {
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0; i < size(); i++) {
 				final IMouseListener listener = listeners.get(i);
 				
 				listener.mouseEvent(x, y, button, flag);
@@ -57,7 +53,7 @@ final class Mouse implements MouseListener, MouseMotionListener, MouseWheelListe
 		final int button = m.getButton();
 		
 		synchronized (listeners) {
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0; i < size(); i++) {
 				final IMouseListener listener = listeners.get(i);
 				
 				listener.mouseMotionEvent(x, y, button, flag);
@@ -71,7 +67,7 @@ final class Mouse implements MouseListener, MouseMotionListener, MouseWheelListe
 		final int rotation = m.getWheelRotation();
 		
 		synchronized (listeners) {
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0; i < size(); i++) {
 				final IMouseListener listener = listeners.get(i);
 				
 				listener.mouseWheelEvent(x, y, rotation);
@@ -119,16 +115,9 @@ final class Mouse implements MouseListener, MouseMotionListener, MouseWheelListe
 		//...
 	}
 	
-	public void addListener(final IMouseListener listener) {
-		synchronized (listeners) {
-			listeners.add(listener);
-		}
-	}
-	
-	public void removeListener(final IMouseListener listener) {
-		synchronized (listeners) {
-			listeners.remove(listener);
-		}
+	public void reset() {
+		scaleX = scaleY = 0;
+		offsetX = offsetY = 0;
 	}
 	
 	public void setScale(final float scaleX, final float scaleY) {

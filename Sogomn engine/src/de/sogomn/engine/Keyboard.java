@@ -2,24 +2,21 @@ package de.sogomn.engine;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
 
-final class Keyboard implements KeyListener {
-	
-	private ArrayList<IKeyboardListener> listeners;
+final class Keyboard extends AbstractListenerContainer<IKeyboardListener> implements KeyListener {
 	
 	private static final boolean PRESSED = true;
 	private static final boolean RELEASED = false;
 	
 	public Keyboard() {
-		listeners = new ArrayList<IKeyboardListener>();
+		//...
 	}
 	
 	private void fireKeyboardEvent(final KeyEvent k, final boolean flag) {
 		final int key = k.getKeyCode();
 		
 		synchronized (listeners) {
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0; i < size(); i++) {
 				final IKeyboardListener listener = listeners.get(i);
 				
 				listener.keyboardEvent(key, flag);
@@ -40,18 +37,6 @@ final class Keyboard implements KeyListener {
 	@Override
 	public void keyTyped(final KeyEvent k) {
 		//...
-	}
-	
-	public void addListener(final IKeyboardListener listener) {
-		synchronized (listeners) {
-			listeners.add(listener);
-		}
-	}
-	
-	public void removeListener(final IKeyboardListener listener) {
-		synchronized (listeners) {
-			listeners.remove(listener);
-		}
 	}
 	
 }

@@ -19,17 +19,22 @@ import de.sogomn.engine.util.ImageUtils;
 /**
  * This class represents a screen.
  * Uses JFrame and Canvas classes internally.
+ * Uses double buffering.
  * @author Sogomn
  *
  */
-public final class Screen {
+public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	private JFrame frame;
 	private Canvas canvas;
 	private Mouse mouse;
 	private Keyboard keyboard;
+	
 	private BufferedImage screenImage;
+	private BufferStrategy bufferStrategy;
+	private Graphics2D canvasGraphics, imageGraphics;
 	private int[] pixelRaster;
+	private IShader shader;
 	
 	private String title;
 	private boolean open, visible;
@@ -41,11 +46,6 @@ public final class Screen {
 	private ResizeBehaviour resizeBehaviour;
 	private long resizeTimer;
 	
-	private IGameController controller;
-	private IShader shader;
-	private long lastTime;
-	
-	private static final float NANO_SECONDS_PER_SECOND = 1000000000.0f;
 	private static final int BUFFER_COUNT = 2;
 	private static final String NO_TITLE = "";
 	private static final double RESIZE_INTERVAL = 0.75;
@@ -130,6 +130,17 @@ public final class Screen {
 		this(width, height, NO_TITLE);
 	}
 	
+	private void initGraphics() {
+		canvas.createBufferStrategy(BUFFER_COUNT);
+		bufferStrategy = canvas.getBufferStrategy();
+		
+		canvasGraphics = (Graphics2D)bufferStrategy.getDrawGraphics();
+		imageGraphics = screenImage.createGraphics();
+		
+		ImageUtils.applyLowGraphics(canvasGraphics);
+		ImageUtils.applyLowGraphics(imageGraphics);
+	}
+	
 	private void stretchContent() {
 		renderWidth = canvasWidth;
 		renderHeight = canvasHeight;
@@ -152,68 +163,36 @@ public final class Screen {
 		renderY = (canvasHeight / 2) - (renderHeight / 2);
 	}
 	
-	private void update(final float delta) {
-		if (!isVisible()) {
-			return;
-		}
-		
-		if (controller != null) {
-			controller.update(delta);
-		}
-	}
-	
-	private void draw() {
-		if (!isVisible()) {
-			return;
-		}
-		
-		final BufferStrategy bs = canvas.getBufferStrategy();
-		final Graphics2D g2 = (Graphics2D)bs.getDrawGraphics();
-		
-		ImageUtils.applyLowGraphics(g2);
-		
-		if (controller != null) {
-			final Graphics2D g = screenImage.createGraphics();
-			
-			controller.draw(g);
-			
-			g.dispose();
-			
-			applyShader();
-		}
-		
-		g2.clearRect(0, 0, canvasWidth, canvasHeight);
-		g2.drawImage(screenImage, renderX, renderY, renderWidth, renderHeight, null);
-		
-		g2.dispose();
-		bs.show();
-	}
-	
-	private void applyShader() {
-		if (!isVisible()) {
-			return;
-		}
-		
-		if (shader != null) {
-			shader.apply(pixelRaster);
+	private void drawDrawables(final Graphics2D g) {
+		synchronized (listeners) {
+			for (int i = 0; i < size(); i++) {
+				final IDrawable drawable = listeners.get(i);
+				
+				drawable.draw(g);
+			}
 		}
 	}
 	
 	/**
-	 * Updates the screen and calls the methods in the ITickable object, if existent.
+	 * Notifies all listening IDrawable objects.
+	 * Then applies the shader.
+	 * Then swaps buffers.
 	 */
-	public synchronized void update() {
-		if (!isOpen()) {
+	public synchronized void draw() {
+		if (!isVisible()) {
 			return;
 		}
 		
-		final long now = System.nanoTime();
-		final float elapsed = (now - lastTime) / NANO_SECONDS_PER_SECOND;
+		drawDrawables(imageGraphics);
 		
-		update(elapsed);
-		draw();
+		if (shader != null) {
+			shader.apply(pixelRaster);
+		}
 		
-		lastTime = now;
+		canvasGraphics.clearRect(0, 0, canvasWidth, canvasHeight);
+		canvasGraphics.drawImage(screenImage, renderX, renderY, renderWidth, renderHeight, null);
+		
+		bufferStrategy.show();
 	}
 	
 	/**
@@ -225,10 +204,10 @@ public final class Screen {
 		}
 		
 		frame.setVisible(true);
-		canvas.createBufferStrategy(BUFFER_COUNT);
 		canvas.requestFocus();
 		
-		lastTime = System.nanoTime();
+		initGraphics();
+		
 		visible = true;
 	}
 	
@@ -241,6 +220,8 @@ public final class Screen {
 		}
 		
 		visible = false;
+		imageGraphics.dispose();
+		canvasGraphics.dispose();
 		frame.setVisible(false);
 	}
 	
@@ -254,20 +235,35 @@ public final class Screen {
 	}
 	
 	/**
-	 * Sets the game controller this screen should update.
-	 * 
-	 * @param newController The IGameController object to be notified every frame
+	 * Adds a mouse listener to the screen.
+	 * @param listener The listener
 	 */
-	public void setGameController(final IGameController newController) {
-		if (controller != null) {
-			mouse.removeListener(controller);
-			keyboard.removeListener(controller);
-		}
-		
-		controller = newController;
-		
-		mouse.addListener(controller);
-		keyboard.addListener(controller);
+	public void addMouseListener(final IMouseListener listener) {
+		mouse.addListener(listener);
+	}
+	
+	/**
+	 * Removes a mouse listener from the screen.
+	 * @param listener The listener
+	 */
+	public void removeMouseListener(final IMouseListener listener) {
+		mouse.removeListener(listener);
+	}
+	
+	/**
+	 * Adds a keyboard listener to the screen.
+	 * @param listener The listener
+	 */
+	public void addKeyboardListener(final IKeyboardListener listener) {
+		keyboard.addListener(listener);
+	}
+	
+	/**
+	 * Removes a keyboard listener from the screen.
+	 * @param listener The listener
+	 */
+	public void removeKeyboardListener(final IKeyboardListener listener) {
+		keyboard.removeListener(listener);
 	}
 	
 	/**

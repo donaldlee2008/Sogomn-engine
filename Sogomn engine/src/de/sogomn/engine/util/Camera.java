@@ -17,6 +17,9 @@ public final class Camera implements IUpdatable {
 	 */
 	public static final float NO_SMOOTHNESS = 0;
 	
+	/**
+	 * Constructs a new Camera object with the default smoothness of 0.
+	 */
 	public Camera() {
 		smoothness = NO_SMOOTHNESS;
 	}

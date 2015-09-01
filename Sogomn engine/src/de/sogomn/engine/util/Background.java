@@ -3,7 +3,8 @@ package de.sogomn.engine.util;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import de.sogomn.engine.ITickable;
+import de.sogomn.engine.IDrawable;
+import de.sogomn.engine.IUpdatable;
 
 /**
  * This class can be used for backgrounds in games.
@@ -11,7 +12,7 @@ import de.sogomn.engine.ITickable;
  * @author Sogomn
  *
  */
-public final class Background implements ITickable {
+public final class Background implements IUpdatable, IDrawable {
 	
 	private int width, height;
 	
