@@ -64,24 +64,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		final ComponentAdapter resizeAdapter = new ComponentAdapter() {
 			@Override
 			public void componentResized(final ComponentEvent c) {
-				canvasWidth = canvas.getWidth();
-				canvasHeight = canvas.getHeight();
-				
-				if (resizeBehavior == ResizeBehavior.STRETCH) {
-					stretchContentSize();
-				} else if (resizeBehavior == ResizeBehavior.KEEP_ASPECT_RATIO) {
-					fitContentSize();
-				} else if (resizeBehavior == ResizeBehavior.KEEP_SIZE) {
-					keepContentSize();
-				} else if (resizeBehavior == ResizeBehavior.DO_NOTHING) {
-					//...
-				}
-				
-				final float scaleX = (float)renderWidth / initialWidth;
-				final float scaleY = (float)renderHeight / initialHeight;
-				
-				mouse.setScale(scaleX, scaleY);
-				mouse.setOffset(renderX, renderY);
+				calculateViewport();
 			}
 		};
 		
@@ -108,7 +91,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		frame.addComponentListener(resizeAdapter);
 		frame.add(canvas, BorderLayout.CENTER);
 		frame.pack();
-		frame.setLocationByPlatform(true);
+		frame.setLocationRelativeTo(null);
 	}
 	
 	/**
@@ -118,6 +101,27 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public Screen(final int width, final int height) {
 		this(width, height, NO_TITLE);
+	}
+	
+	private void calculateViewport() {
+		canvasWidth = canvas.getWidth();
+		canvasHeight = canvas.getHeight();
+		
+		if (resizeBehavior == ResizeBehavior.STRETCH) {
+			stretchContentSize();
+		} else if (resizeBehavior == ResizeBehavior.KEEP_ASPECT_RATIO) {
+			fitContentSize();
+		} else if (resizeBehavior == ResizeBehavior.KEEP_SIZE) {
+			keepContentSize();
+		} else if (resizeBehavior == ResizeBehavior.DO_NOTHING) {
+			//...
+		}
+		
+		final float scaleX = (float)renderWidth / initialWidth;
+		final float scaleY = (float)renderHeight / initialHeight;
+		
+		mouse.setScale(scaleX, scaleY);
+		mouse.setOffset(renderX, renderY);
 	}
 	
 	private void initGraphics() {
@@ -204,6 +208,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		}
 		
 		frame.setVisible(true);
+		calculateViewport();
 		initGraphics();
 		canvas.requestFocus();
 	}
@@ -216,7 +221,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			return;
 		}
 		
-		imageGraphics.dispose();
 		frame.setVisible(false);
 	}
 	
@@ -299,6 +303,26 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public void setIcon(final BufferedImage image) {
 		frame.setIconImage(image);
+	}
+	
+	/**
+	 * Sets the size of the inner screen. The method "hide" will be called.
+	 * If the screen was visible before it will reappear.
+	 * @param width The target width
+	 * @param height The target height
+	 */
+	public void setSize(final int width, final int height) {
+		final boolean wasVisible = isVisible();
+		
+		hide();
+		
+		canvas.setPreferredSize(new Dimension(width, height));
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		
+		if (wasVisible) {
+			show();
+		}
 	}
 	
 	/**
