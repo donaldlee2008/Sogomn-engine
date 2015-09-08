@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
@@ -32,6 +35,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	private Mouse mouse;
 	private Keyboard keyboard;
 	
+	private GraphicsDevice display;
 	private BufferedImage screenImage;
 	private Graphics2D imageGraphics;
 	private int[] pixelRaster;
@@ -72,6 +76,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		canvas = new Canvas();
 		mouse = new Mouse();
 		keyboard = new Keyboard();
+		
+		display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		screenImage = frame.getGraphicsConfiguration().createCompatibleImage(width, height);
 		pixelRaster = ((DataBufferInt)screenImage.getRaster().getDataBuffer()).getData();
 		
@@ -290,6 +296,22 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
+	 * Sets the full screen flag for the screen. This will toggle full screen mode, if supported.
+	 * This will cap the drawing rate to what the display supports.
+	 * There may be performance issues.
+	 * @param fullScreen The full screen flag
+	 */
+	public void setFullScreen(final boolean fullScreen) {
+		final boolean fullScreenAllowed = display.isFullScreenSupported();
+		
+		if (fullScreen && fullScreenAllowed) {
+			display.setFullScreenWindow(frame);
+		} else {
+			display.setFullScreenWindow(null);
+		}
+	}
+	
+	/**
 	 * Sets the resize behavior of the screen.
 	 * @param resizeBehaviour The resize behavior
 	 */
@@ -326,7 +348,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Returns whether the screen is open and can be used.
+	 * Returns whether the screen is open and can be used or not.
 	 * @return The state
 	 */
 	public boolean isOpen() {
@@ -347,6 +369,17 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public boolean isResizable() {
 		return frame.isResizable();
+	}
+	
+	/**
+	 * Returns the full screen flag of the screen.
+	 * @return True if the screen is in full screen mode; false otherwise
+	 */
+	public boolean isFullScreen() {
+		final Window window = display.getFullScreenWindow();
+		final boolean fullScreen = window != null && window == frame;
+		
+		return fullScreen;
 	}
 	
 	/**

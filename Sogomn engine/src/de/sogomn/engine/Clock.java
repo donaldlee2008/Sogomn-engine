@@ -18,8 +18,6 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	 * Constructs a new Clock object.
 	 */
 	public Clock() {
-		initialTime = lastTime = System.nanoTime();
-		
 		reset();
 	}
 	
@@ -43,6 +41,8 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 		
 		updateUpdatables(elapsedInSeconds);
 		
+		lastTime = now;
+		
 		ticks++;
 	}
 	
@@ -50,7 +50,7 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	 * Resets the tick counter and the starting time of the clock.
 	 */
 	public void reset() {
-		initialTime = System.nanoTime();
+		initialTime = lastTime = System.nanoTime();
 		ticks = 0;
 	}
 	
