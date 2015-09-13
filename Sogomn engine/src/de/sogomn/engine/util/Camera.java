@@ -42,11 +42,11 @@ public final class Camera implements IUpdatable {
 	}
 	
 	public void apply(final Graphics2D g) {
-		g.translate(-(int)x, -(int)y);
+		g.translate(-x, -y);
 	}
 	
 	public void revert(final Graphics2D g) {
-		g.translate((int)x, (int)y);
+		g.translate(x, y);
 	}
 	
 	/**

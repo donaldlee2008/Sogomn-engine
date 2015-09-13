@@ -72,7 +72,8 @@ public final class SpriteSheet {
 	}
 	
 	/**
-	 * Returns the sprite at the given index. The orientation might either be left to right or top to bottom.
+	 * Returns the sprite at the given index.
+	 * The orientation may either be left to right or top to bottom.
 	 * @param index The index
 	 * @param orientation The orientation (left to right or top to bottom)
 	 * @return The sprite as a BufferedImage or null if the index is wrong
@@ -103,6 +104,36 @@ public final class SpriteSheet {
 		final BufferedImage image = getSprite(index, Orientation.LEFT_TO_RIGHT);
 		
 		return image;
+	}
+	
+	/**
+	 * Returns the sprites at the given indices as an array.
+	 * The orientation may either be left to right or top to bottom.
+	 * @param orientation The orientation (left to right or top to bottom)
+	 * @param indices The indices
+	 * @return The sprites as an array
+	 */
+	public BufferedImage[] getSprites(final Orientation orientation, final int... indices) {
+		final int length = indices.length;
+		final BufferedImage[] images = new BufferedImage[length];
+		
+		for (int i = 0; i < length; i++) {
+			final int index = indices[i];
+			
+			images[i] = getSprite(index, orientation);
+		}
+		
+		return images;
+	}
+	
+	/**
+	 * Returns the sprites at the given indices as an array.
+	 * The orientation is left to right.
+	 * @param indices The indices
+	 * @return The sprites as an array
+	 */
+	public BufferedImage[] getSprites(final int... indices) {
+		return getSprites(Orientation.LEFT_TO_RIGHT, indices);
 	}
 	
 	/**

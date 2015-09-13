@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
  * @author Sogomn
  *
  */
+@FunctionalInterface
 public interface IDrawable {
 	
 	/**

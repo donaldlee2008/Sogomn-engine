@@ -6,6 +6,7 @@ package de.sogomn.engine;
  * @author Sogomn
  *
  */
+@FunctionalInterface
 public interface IUpdatable {
 	
 	/**
