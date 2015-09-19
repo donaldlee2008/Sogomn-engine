@@ -28,8 +28,6 @@ import de.sogomn.engine.util.ImageUtils;
  */
 public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
-	private boolean open;
-	
 	private JFrame frame;
 	private Canvas canvas;
 	private Mouse mouse;
@@ -41,6 +39,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	private int[] pixelRaster;
 	private IShader shader;
 	
+	private boolean open;
 	private int initialWidth, initialHeight;
 	private int canvasWidth, canvasHeight;
 	private int renderWidth, renderHeight;
@@ -69,6 +68,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			@Override
 			public void componentResized(final ComponentEvent c) {
 				calculateViewport();
+				canvas.requestFocus();
 			}
 		};
 		
@@ -309,6 +309,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		} else {
 			display.setFullScreenWindow(null);
 		}
+		
+		canvas.requestFocus();
 	}
 	
 	/**
@@ -357,6 +359,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Returns whether the screen is visible or not.
+	 * This does not respect minimization.
 	 * @return The state
 	 */
 	public boolean isVisible() {

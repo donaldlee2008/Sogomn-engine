@@ -9,8 +9,11 @@ import java.util.ArrayList;
  *
  * @param <T> The object type the container should hold
  */
-abstract class AbstractListenerContainer<T> {
+public abstract class AbstractListenerContainer<T> {
 	
+	/**
+	 * The listener list.
+	 */
 	protected ArrayList<T> listeners;
 	
 	/**

@@ -7,21 +7,40 @@ import de.sogomn.engine.IUpdatable;
 public final class Camera implements IUpdatable {
 	
 	private double x, y;
-	
 	private double targetX, targetY;
+	
+	private double minX, minY;
+	private double maxX, maxY;
 	
 	private float smoothness;
 	
 	/**
-	 * If passed to the method "setSmoothness", the camera position will automatically be the target position.
+	 * If passed to the method "setSmoothness" the camera position will automatically be the target position.
 	 */
 	public static final float NO_SMOOTHNESS = 0;
 	
 	/**
-	 * Constructs a new Camera object with the default smoothness of 0.
+	 * Represents a minimum value of any size.
+	 */
+	public static final int NO_MINIMUM = Integer.MIN_VALUE;
+	
+	/**
+	 * Represents a maximum value of any size.
+	 */
+	public static final int NO_MAXIMUM = Integer.MAX_VALUE;
+	
+	/**
+	 * Constructs a new Camera object with the default smoothness of 0 and no minimum or maximum values.
 	 */
 	public Camera() {
+		minX = minY = NO_MINIMUM;
+		maxX = maxY = NO_MAXIMUM;
 		smoothness = NO_SMOOTHNESS;
+	}
+	
+	private void clampPosition() {
+		x = Math.max(Math.min(x, maxX), minX);
+		y = Math.max(Math.min(y, maxY), minY);
 	}
 	
 	/**
@@ -39,12 +58,23 @@ public final class Camera implements IUpdatable {
 			x += (distX / smoothness) * delta;
 			y += (distY / smoothness) * delta;
 		}
+		
+		clampPosition();
 	}
 	
+	/**
+	 * Applies the camera translation to the given Graphics2D object.
+	 * @param g The Graphics2D object
+	 */
 	public void apply(final Graphics2D g) {
 		g.translate(-x, -y);
 	}
 	
+	/**
+	 * Reverts the camera translation of the given Graphics2D object.
+	 * This should only be called if the translation was applied before.
+	 * @param g The Graphics2D object
+	 */
 	public void revert(final Graphics2D g) {
 		g.translate(x, y);
 	}
@@ -101,11 +131,42 @@ public final class Camera implements IUpdatable {
 	 * @param y The y coordinate
 	 */
 	public void set(final double x, final double y) {
-		this.x = x;
-		this.y = y;
+		this.x = targetX = x;
+		this.y = targetY = y;
 		
-		targetX = x;
-		targetY = y;
+		clampPosition();
+	}
+	
+	/**
+	 * Sets the minimum position the camera can have.
+	 * @param minX The minimum x value
+	 * @param minY The minimum y value
+	 */
+	public void setMinimum(final double minX, final double minY) {
+		this.minX = minX;
+		this.minY = minY;
+	}
+	
+	/**
+	 * Sets the maximum position the camera can have.
+	 * @param maxX The maximum x value
+	 * @param maxY The maximum y value
+	 */
+	public void setMaximum(final double maxX, final double maxY) {
+		this.maxX = maxX;
+		this.maxY = maxY;
+	}
+	
+	/**
+	 * Sets the minimum and maximum values the camera can have.
+	 * @param minX The minimum x value
+	 * @param minY The minimum y value
+	 * @param maxX The maximum x value
+	 * @param maxY The maximum y value
+	 */
+	public void setBounds(final double minX, final double minY, final double maxX, final double maxY) {
+		setMinimum(minX, minY);
+		setMaximum(maxX, maxY);
 	}
 	
 	/**
