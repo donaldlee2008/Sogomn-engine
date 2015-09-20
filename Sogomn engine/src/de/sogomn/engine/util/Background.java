@@ -80,7 +80,6 @@ public final class Background implements IUpdatable, IDrawable {
 	public void update(final float delta) {
 		if (animation != null) {
 			animation.update(delta);
-			
 			image = animation.getImage();
 		}
 		
@@ -95,8 +94,8 @@ public final class Background implements IUpdatable, IDrawable {
 	 */
 	@Override
 	public void draw(final Graphics2D g) {
-		final int offsetX = (int)(x - width * Math.signum(horizontalSpeed));
-		final int offsetY = (int)(y - height * Math.signum(verticalSpeed));
+		final int offsetX = (int)(x - width * Math.signum(x));
+		final int offsetY = (int)(y - height * Math.signum(y));
 		
 		g.drawImage(image, (int)x, (int)y, null);
 		
