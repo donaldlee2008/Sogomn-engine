@@ -2,10 +2,13 @@ package de.sogomn.engine;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -48,6 +51,11 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	private static final int BUFFER_COUNT = 2;
 	private static final String NO_TITLE = "";
+	
+	/**
+	 * Represents a hidden cursor.
+	 */
+	public static final Cursor NO_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "No cursor");
 	
 	/**
 	 * Constructs a new Screen object with the given width, height and title.
@@ -109,6 +117,13 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		this(width, height, NO_TITLE);
 	}
 	
+	private void initGraphics() {
+		canvas.createBufferStrategy(BUFFER_COUNT);
+		imageGraphics = screenImage.createGraphics();
+		
+		ImageUtils.applyLowGraphics(imageGraphics);
+	}
+	
 	private void calculateViewport() {
 		canvasWidth = canvas.getWidth();
 		canvasHeight = canvas.getHeight();
@@ -128,13 +143,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		
 		mouse.setScale(scaleX, scaleY);
 		mouse.setOffset(renderX, renderY);
-	}
-	
-	private void initGraphics() {
-		canvas.createBufferStrategy(BUFFER_COUNT);
-		imageGraphics = screenImage.createGraphics();
-		
-		ImageUtils.applyLowGraphics(imageGraphics);
 	}
 	
 	private void stretchContentSize() {
@@ -167,7 +175,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		renderY = (canvasHeight / 2) - (renderHeight / 2);
 	}
 	
-	private void drawDrawables(final Graphics2D g) {
+	private void notifyDrawables(final Graphics2D g) {
 		synchronized (listeners) {
 			for (int i = 0; i < size(); i++) {
 				final IDrawable drawable = listeners.get(i);
@@ -182,12 +190,12 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Then applies the shader.
 	 * Then swaps buffers.
 	 */
-	public synchronized void draw() {
+	public synchronized void redraw() {
 		if (!isVisible()) {
 			return;
 		}
 		
-		drawDrawables(imageGraphics);
+		notifyDrawables(imageGraphics);
 		
 		if (shader != null) {
 			shader.apply(pixelRaster);
@@ -347,6 +355,14 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		if (wasVisible) {
 			show();
 		}
+	}
+	
+	/**
+	 * Sets the cursor for the screen. Pass the static variable NO_CURSOR to hide it.
+	 * @param cursor The new cursor
+	 */
+	public void setCursor(final Cursor cursor) {
+		frame.setCursor(cursor);
 	}
 	
 	/**

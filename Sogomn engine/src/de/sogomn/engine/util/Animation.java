@@ -1,8 +1,8 @@
 package de.sogomn.engine.util;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
+import de.sogomn.engine.AbstractListenerContainer;
 import de.sogomn.engine.IUpdatable;
 
 /**
@@ -10,16 +10,15 @@ import de.sogomn.engine.IUpdatable;
  * @author Sogomn
  *
  */
-public final class Animation implements IUpdatable {
+public final class Animation extends AbstractListenerContainer<IAnimationListener> implements IUpdatable {
 	
 	private BufferedImage[] images;
 	private int currentIndex;
 	
-	private float delay, timer;
+	private float delay;
+	private double timer;
 	
 	private int maxLoops, currentLoop;
-	
-	private ArrayList<IAnimationListener> listeners;
 	
 	/**
 	 * Infinite number of loops.
@@ -36,7 +35,6 @@ public final class Animation implements IUpdatable {
 		this.images = images;
 		
 		maxLoops = INFINITE;
-		listeners = new ArrayList<IAnimationListener>();
 	}
 	
 	/**
@@ -168,26 +166,6 @@ public final class Animation implements IUpdatable {
 		final boolean looping = (maxLoops == INFINITE || currentLoop < maxLoops);
 		
 		return looping;
-	}
-	
-	/**
-	 * Adds the passed object to the listeners.
-	 * @param listener The new listener
-	 */
-	public void addListener(final IAnimationListener listener) {
-		synchronized (listeners) {
-			listeners.add(listener);
-		}
-	}
-	
-	/**
-	 * Removes the passed object from the listeners.
-	 * @param listener The listener to be removed
-	 */
-	public void removeListener(final IAnimationListener listener) {
-		synchronized (listeners) {
-			listeners.remove(listener);
-		}
 	}
 	
 }
