@@ -29,7 +29,7 @@ It is made with only the standard Java API and thus highly portable.
     
     while (screen.isOpen()) {
         gameClock.update();
-        screen.draw();
+        screen.redraw();
     }
 
 ---
