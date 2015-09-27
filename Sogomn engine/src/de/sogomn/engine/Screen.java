@@ -2,6 +2,7 @@ package de.sogomn.engine;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -323,10 +324,10 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Sets the resize behavior of the screen.
-	 * @param resizeBehaviour The resize behavior
+	 * @param resizeBehavior The resize behavior
 	 */
-	public void setResizeBehaviour(final ResizeBehavior resizeBehaviour) {
-		this.resizeBehavior = resizeBehaviour;
+	public void setResizeBehavior(final ResizeBehavior resizeBehavior) {
+		this.resizeBehavior = resizeBehavior;
 	}
 	
 	/**
@@ -363,6 +364,14 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public void setCursor(final Cursor cursor) {
 		frame.setCursor(cursor);
+	}
+	
+	/**
+	 * Sets the background color of the screen.
+	 * @param color The background color
+	 */
+	public void setBackgroundColor(final Color color) {
+		canvas.setBackground(color);
 	}
 	
 	/**
@@ -435,7 +444,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Returns the width of the content.
-	 * May differ from the canvas width depending on the resize behaviour.
+	 * May differ from the canvas width depending on the resize behavior.
 	 * @return The render width
 	 */
 	public int getRenderWidth() {
@@ -444,7 +453,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Returns the height of the content.
-	 * May differ from the canvas width depending on the resize behaviour.
+	 * May differ from the canvas width depending on the resize behavior.
 	 * @return The render height
 	 */
 	public int getRenderHeight() {
@@ -463,7 +472,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Returns the current resize behavior of the screen.
 	 * @return The resize behavior
 	 */
-	public ResizeBehavior getResizeBehaviour() {
+	public ResizeBehavior getResizeBehavior() {
 		return resizeBehavior;
 	}
 	
