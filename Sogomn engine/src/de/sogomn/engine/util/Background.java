@@ -143,6 +143,22 @@ public final class Background implements IUpdatable, IDrawable {
 	}
 	
 	/**
+	 * Sets the background image.
+	 * @param image The new image
+	 */
+	public void setImage(final BufferedImage image) {
+		this.image = image;
+	}
+	
+	/**
+	 * Sets the background animation.
+	 * @param animation The new animation or null for no animation
+	 */
+	public void setAnimation(final Animation animation) {
+		this.animation = animation;
+	}
+	
+	/**
 	 * Returns the width of the background.
 	 * If an animation was used this is the width of the first image.
 	 * @return The width

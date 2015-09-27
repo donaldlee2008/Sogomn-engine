@@ -16,7 +16,7 @@ final class Keyboard extends AbstractListenerContainer<IKeyboardListener> implem
 		final int key = k.getKeyCode();
 		
 		synchronized (listeners) {
-			for (int i = 0; i < size(); i++) {
+			for (int i = 0; i < getListenerCount(); i++) {
 				final IKeyboardListener listener = listeners.get(i);
 				
 				listener.keyboardEvent(key, flag);

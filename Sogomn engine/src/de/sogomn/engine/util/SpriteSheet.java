@@ -30,7 +30,7 @@ public final class SpriteSheet {
 		spritesHigh = height / spriteHeight;
 		sprites = new BufferedImage[spritesWide][spritesHigh];
 		
-		loadImages(image);
+		loadSprites(image);
 	}
 	
 	/**
@@ -43,7 +43,7 @@ public final class SpriteSheet {
 		this(ImageUtils.loadImage(path), spriteWidth, spriteHeight);
 	}
 	
-	private void loadImages(final BufferedImage image) {
+	private void loadSprites(final BufferedImage image) {
 		for (int x = 0; x < spritesWide; x++) {
 			for (int y = 0; y < spritesHigh; y++) {
 				final int imageX = x * spriteWidth;

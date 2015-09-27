@@ -47,7 +47,7 @@ public abstract class AbstractListenerContainer<T> {
 	 * Returns the size of the container.
 	 * @return The size
 	 */
-	public synchronized int size() {
+	public synchronized int getListenerCount() {
 		synchronized (listeners) {
 			return listeners.size();
 		}

@@ -177,7 +177,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	private void notifyDrawables(final Graphics2D g) {
 		synchronized (listeners) {
-			for (int i = 0; i < size(); i++) {
+			for (int i = 0; i < getListenerCount(); i++) {
 				final IDrawable drawable = listeners.get(i);
 				
 				drawable.draw(g);
