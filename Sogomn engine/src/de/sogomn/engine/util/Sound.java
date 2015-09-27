@@ -10,6 +10,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -19,14 +20,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * @author Sogomn
  *
  */
-public final class Sound {
+public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	
 	private byte[] data;
 	private AudioFormat format;
 	
-	private int currentId;
+	private long currentId;
 	
-	private HashMap<Integer, Clip> clips;
+	private HashMap<Long, Clip> clips;
 	
 	private static final int BUFFER_SIZE = 24;
 	
@@ -44,23 +45,45 @@ public final class Sound {
 		this.data = data;
 		this.format = format;
 		
-		clips = new HashMap<Integer, Clip>();
+		clips = new HashMap<Long, Clip>();
+	}
+	
+	private void notifyListeners(final long id) {
+		synchronized (listeners) {
+			for (int i = 0; i < getListenerCount(); i++) {
+				final ISoundListener listener = listeners.get(i);
+				
+				listener.stopped(this, id);
+			}
+		}
 	}
 	
 	/**
 	 * Plays the sound a given amount of times.
+	 * This is non-blocking.
 	 * @param loops The amount of times the sound should be played
 	 * @return The clip id or ERROR (-1) in case of faliure
 	 */
-	public int play(final int loops) {
+	public long play(final int loops) {
 		try {
 			final Clip clip = AudioSystem.getClip();
+			final long id = currentId;
 			
+			clip.addLineListener(l -> {
+				final LineEvent.Type type = l.getType();
+				
+				if (type == LineEvent.Type.STOP) {
+					stop(id);
+					notifyListeners(id);
+				}
+			});
 			clip.open(format, data, 0, data.length);
 			clip.loop(loops - 1);
-			clips.put(currentId, clip);
+			clips.put(id, clip);
 			
-			return currentId++;
+			currentId++;
+			
+			return id;
 		} catch (final LineUnavailableException ex) {
 			ex.printStackTrace();
 			
@@ -70,9 +93,10 @@ public final class Sound {
 	
 	/**
 	 * Plays the sound once.
+	 * Same as passing "1" to the method "play".
 	 * @return The clip id or ERROR (-1) in case of faliure
 	 */
-	public int play() {
+	public long play() {
 		return play(1);
 	}
 	
@@ -80,7 +104,7 @@ public final class Sound {
 	 * Stops the clip with the given id.
 	 * @param id The sound id
 	 */
-	public void stop(final int id) {
+	public void stop(final long id) {
 		final Clip clip = clips.get(id);
 		
 		if (clip != null) {

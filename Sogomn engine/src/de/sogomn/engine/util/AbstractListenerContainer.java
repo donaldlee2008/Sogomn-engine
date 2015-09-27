@@ -1,4 +1,4 @@
-package de.sogomn.engine;
+package de.sogomn.engine.util;
 
 import java.util.ArrayList;
 

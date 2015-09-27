@@ -21,6 +21,7 @@ import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
+import de.sogomn.engine.util.AbstractListenerContainer;
 import de.sogomn.engine.util.ImageUtils;
 
 /**

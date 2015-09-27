@@ -1,5 +1,7 @@
 package de.sogomn.engine;
 
+import de.sogomn.engine.util.AbstractListenerContainer;
+
 /**
  * A class to be used for continuous updating (e.g. for a game loop).
  * It is recommended to call the "update" method in a regular interval.

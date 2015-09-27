@@ -9,7 +9,7 @@ package de.sogomn.engine.util;
 public interface IAnimationListener {
 	
 	/**
-	 * Usually called when an animation loops.
+	 * Called when an animation loop has finished.
 	 * @param source The calling Animation object
 	 */
 	void looped(final Animation source);

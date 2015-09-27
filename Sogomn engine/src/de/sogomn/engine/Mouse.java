@@ -6,6 +6,8 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import de.sogomn.engine.util.AbstractListenerContainer;
+
 final class Mouse extends AbstractListenerContainer<IMouseListener> implements MouseListener, MouseMotionListener, MouseWheelListener {
 	
 	private float scaleX, scaleY;

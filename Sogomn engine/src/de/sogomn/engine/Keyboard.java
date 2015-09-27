@@ -3,6 +3,8 @@ package de.sogomn.engine;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import de.sogomn.engine.util.AbstractListenerContainer;
+
 final class Keyboard extends AbstractListenerContainer<IKeyboardListener> implements KeyListener {
 	
 	private static final boolean PRESSED = true;

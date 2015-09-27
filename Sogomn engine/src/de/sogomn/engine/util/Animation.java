@@ -2,7 +2,6 @@ package de.sogomn.engine.util;
 
 import java.awt.image.BufferedImage;
 
-import de.sogomn.engine.AbstractListenerContainer;
 import de.sogomn.engine.IUpdatable;
 
 /**
