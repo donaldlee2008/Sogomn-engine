@@ -69,11 +69,11 @@ public final class Sound {
 	}
 	
 	/**
-	 * Loops the sound until "stop" is called.
+	 * Plays the sound once.
 	 * @return The clip id or ERROR (-1) in case of faliure
 	 */
 	public int play() {
-		return play(INFINITE);
+		return play(1);
 	}
 	
 	/**

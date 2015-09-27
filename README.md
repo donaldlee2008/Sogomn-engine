@@ -33,6 +33,12 @@ It is made with only the standard Java API and thus highly portable.
     }
 
 ---
+<br>
+
+#### If running an application in full screen mode I recommend to start a separate thread for drawing.
+#### Full screen caps the frame rate at 60 on most devices and thus makes the update chain lag.
+
+---
 <br/>
 
 <p align="center">
