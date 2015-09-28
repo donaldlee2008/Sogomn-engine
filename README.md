@@ -32,6 +32,9 @@ It is made with only the standard Java API and thus highly portable.
         screen.redraw();
     }
 
+
+There is a more detailed example over here: [On Pastebin](http://pastebin.com/LYkFLp9F)
+
 ---
 <br>
 
