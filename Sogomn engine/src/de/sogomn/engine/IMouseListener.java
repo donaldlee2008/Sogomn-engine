@@ -20,10 +20,9 @@ public interface IMouseListener {
 	 * Usually called when the mouse was moved.
 	 * @param x The x coordinate
 	 * @param y The y coordinate
-	 * @param button The button pressed during the movement - might be undefined
-	 * @param flag True when dragged, false otherwise
+	 * @param modifiers The non-extended button modifiers
 	 */
-	void mouseMotionEvent(final int x, final int y, final int button, final boolean flag);
+	void mouseMotionEvent(final int x, final int y, final int modifiers);
 	
 	/**
 	 * Usually called when the mouse wheel was moved.

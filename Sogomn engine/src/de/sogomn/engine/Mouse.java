@@ -49,16 +49,16 @@ final class Mouse extends AbstractListenerContainer<IMouseListener> implements M
 		}
 	}
 	
-	private void fireMouseMovedEvent(final MouseEvent m, final boolean flag) {
+	private void fireMouseMovedEvent(final MouseEvent m) {
 		final int x = getRelativeX(m.getX());
 		final int y = getRelativeY(m.getY());
-		final int button = m.getButton();
+		final int modifiers = m.getModifiers();
 		
 		synchronized (listeners) {
 			for (int i = 0; i < getListenerCount(); i++) {
 				final IMouseListener listener = listeners.get(i);
 				
-				listener.mouseMotionEvent(x, y, button, flag);
+				listener.mouseMotionEvent(x, y, modifiers);
 			}
 		}
 	}
@@ -89,12 +89,12 @@ final class Mouse extends AbstractListenerContainer<IMouseListener> implements M
 	
 	@Override
 	public void mouseMoved(final MouseEvent m) {
-		fireMouseMovedEvent(m, RELEASED);
+		fireMouseMovedEvent(m);
 	}
 	
 	@Override
 	public void mouseDragged(final MouseEvent m) {
-		fireMouseMovedEvent(m, PRESSED);
+		fireMouseMovedEvent(m);
 	}
 	
 	@Override
