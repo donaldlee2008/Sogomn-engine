@@ -75,6 +75,8 @@ public final class ImageUtils {
 	
 	/**
 	 * Creates a copy of the passed image with the given width and height.
+	 * If width and height of both images are the same, the passed image is returned.
+	 * This method does not use interpolation.
 	 * @param image The image to be scaled
 	 * @param width The target width
 	 * @param height The target height
@@ -87,6 +89,8 @@ public final class ImageUtils {
 		
 		final BufferedImage newImage = new BufferedImage(width, height, image.getType());
 		final Graphics2D g = newImage.createGraphics();
+		
+		applyLowGraphics(g);
 		
 		g.drawImage(image, 0, 0, width, height, null);
 		g.dispose();
