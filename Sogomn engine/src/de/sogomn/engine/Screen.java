@@ -137,8 +137,11 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		} else if (resizeBehavior == ResizeBehavior.KEEP_SIZE) {
 			keepContentSize();
 		} else if (resizeBehavior == ResizeBehavior.DO_NOTHING) {
-			//...
+			return;
 		}
+		
+		renderX = (canvasWidth / 2) - (renderWidth / 2);
+		renderY = (canvasHeight / 2) - (renderHeight / 2);
 		
 		final float scaleX = (float)renderWidth / initialWidth;
 		final float scaleY = (float)renderHeight / initialHeight;
@@ -150,7 +153,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	private void stretchContentSize() {
 		renderWidth = canvasWidth;
 		renderHeight = canvasHeight;
-		renderX = renderY = 0;
 	}
 	
 	private void fitContentSize() {
@@ -164,17 +166,11 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			renderWidth = (int)(initialWidth * ratioY);
 			renderHeight = (int)(initialHeight * ratioY);
 		}
-		
-		renderX = (canvasWidth / 2) - (renderWidth / 2);
-		renderY = (canvasHeight / 2) - (renderHeight / 2);
 	}
 	
 	private void keepContentSize() {
 		renderWidth = initialWidth;
 		renderHeight = initialHeight;
-		
-		renderX = (canvasWidth / 2) - (renderWidth / 2);
-		renderY = (canvasHeight / 2) - (renderHeight / 2);
 	}
 	
 	private void notifyDrawables(final Graphics2D g) {
@@ -412,7 +408,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Returns the inial width of the screen. This will not change, even when resized.
+	 * Returns the inial width of the screen.
+	 * This will not change, even when resized.
 	 * @return The width
 	 */
 	public int getInitialWidth() {
@@ -420,7 +417,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Returns the inial height of the screen. This will not change, even when resized.
+	 * Returns the inial height of the screen.
+	 * This will not change, even when resized.
 	 * @return The height
 	 */
 	public int getInitialHeight() {
@@ -428,7 +426,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Returns the width of the screen. This does not include frame borders.
+	 * Returns the width of the whole screen.
+	 * This does not include frame borders.
 	 * @return The inner width
 	 */
 	public int getWidth() {
@@ -436,7 +435,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Returns the height of the screen. This does not include frame borders.
+	 * Returns the height of the whole screen.
+	 * This does not include frame borders.
 	 * @return The inner height
 	 */
 	public int getHeight() {
@@ -445,7 +445,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Returns the width of the content.
-	 * May differ from the canvas width depending on the resize behavior.
+	 * May differ from the screen width depending on the resize behavior.
 	 * @return The render width
 	 */
 	public int getRenderWidth() {
@@ -454,7 +454,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Returns the height of the content.
-	 * May differ from the canvas width depending on the resize behavior.
+	 * May differ from the screen width depending on the resize behavior.
 	 * @return The render height
 	 */
 	public int getRenderHeight() {
@@ -484,9 +484,25 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public enum ResizeBehavior {
 		
+		/**
+		 * The content fills the screen.
+		 */
 		STRETCH,
+		
+		/**
+		 * The content fills as much as possible but maintains the aspect ratio.
+		 */
 		KEEP_ASPECT_RATIO,
+		
+		/**
+		 * The content size does not change.
+		 * It is displayed in the center of the screen.
+		 */
 		KEEP_SIZE,
+		
+		/**
+		 * There is no action when resizing.
+		 */
 		DO_NOTHING;
 		
 	}
