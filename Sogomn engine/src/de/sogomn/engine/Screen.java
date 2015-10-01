@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
@@ -201,7 +202,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			canvasGraphics.drawImage(screenImage, renderX, renderY, renderWidth, renderHeight, null);
 			
 			canvasGraphics.dispose();
-		} while (bufferStrategy.contentsLost() || screenImage.contentsLost());
+		} while (bufferStrategy.contentsLost());
 		
 		bufferStrategy.show();
 	}
@@ -217,7 +218,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			return;
 		}
 		
-		final int returnCode = screenImage.validate(canvas.getGraphicsConfiguration());
+		final GraphicsConfiguration graphicsConfiguration = canvas.getGraphicsConfiguration();
+		final int returnCode = screenImage.validate(graphicsConfiguration);
 		
 		if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
 			screenImage = createScreenImage();
