@@ -17,7 +17,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
+import java.awt.image.VolatileImage;
 
 import javax.swing.JFrame;
 
@@ -39,10 +39,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	private Keyboard keyboard;
 	
 	private GraphicsDevice display;
-	private BufferedImage screenImage;
-	private Graphics2D imageGraphics;
-	private int[] pixelRaster;
-	private IShader shader;
+	private VolatileImage screenImage;
 	
 	private boolean open;
 	private int initialWidth, initialHeight;
@@ -88,8 +85,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		keyboard = new Keyboard();
 		
 		display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		screenImage = frame.getGraphicsConfiguration().createCompatibleImage(width, height);
-		pixelRaster = ((DataBufferInt)screenImage.getRaster().getDataBuffer()).getData();
 		
 		open = true;
 		initialWidth = canvasWidth = renderWidth = width;
@@ -119,11 +114,10 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		this(width, height, NO_TITLE);
 	}
 	
-	private void initGraphics() {
-		canvas.createBufferStrategy(BUFFER_COUNT);
-		imageGraphics = screenImage.createGraphics();
+	private VolatileImage createScreenImage() {
+		final VolatileImage image = canvas.createVolatileImage(initialWidth, initialHeight);
 		
-		ImageUtils.applyLowGraphics(imageGraphics);
+		return image;
 	}
 	
 	private void calculateViewport() {
@@ -183,9 +177,39 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		}
 	}
 	
+	private void drawOffscreen() {
+		do {
+			final Graphics2D g = screenImage.createGraphics();
+			
+			ImageUtils.applyLowGraphics(g);
+			
+			notifyDrawables(g);
+			
+			g.dispose();
+		} while (screenImage.contentsLost());
+	}
+	
+	private void drawToScreen() {
+		final BufferStrategy bufferStrategy = canvas.getBufferStrategy();
+		
+		do {
+			final Graphics2D canvasGraphics = (Graphics2D)bufferStrategy.getDrawGraphics();
+			
+			ImageUtils.applyLowGraphics(canvasGraphics);
+			
+			canvasGraphics.clearRect(0, 0, canvasWidth, canvasHeight);
+			canvasGraphics.drawImage(screenImage, renderX, renderY, renderWidth, renderHeight, null);
+			
+			canvasGraphics.dispose();
+		} while (bufferStrategy.contentsLost() || screenImage.contentsLost());
+		
+		bufferStrategy.show();
+	}
+	
 	/**
+	 * Validates the screen image and creates a new one, if incompatible.
+	 * This uses hardware accelerated graphics.
 	 * Notifies all listening IDrawable objects.
-	 * Then applies the shader.
 	 * Then swaps buffers.
 	 */
 	public synchronized void redraw() {
@@ -193,35 +217,28 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			return;
 		}
 		
-		notifyDrawables(imageGraphics);
+		final int returnCode = screenImage.validate(canvas.getGraphicsConfiguration());
 		
-		if (shader != null) {
-			shader.apply(pixelRaster);
+		if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
+			screenImage = createScreenImage();
 		}
 		
-		final BufferStrategy bufferStrategy = canvas.getBufferStrategy();
-		final Graphics2D canvasGraphics = (Graphics2D)bufferStrategy.getDrawGraphics();
-		
-		ImageUtils.applyLowGraphics(canvasGraphics);
-		
-		canvasGraphics.clearRect(0, 0, canvasWidth, canvasHeight);
-		canvasGraphics.drawImage(screenImage, renderX, renderY, renderWidth, renderHeight, null);
-		
-		canvasGraphics.dispose();
-		bufferStrategy.show();
+		drawOffscreen();
+		drawToScreen();
 	}
 	
 	/**
-	 * Shows the screen.
+	 * Shows the screen and initializes the graphics.
 	 */
-	public void show() {
+	public synchronized void show() {
 		if (!isOpen()) {
 			return;
 		}
 		
 		frame.setVisible(true);
+		screenImage = createScreenImage();
 		calculateViewport();
-		initGraphics();
+		canvas.createBufferStrategy(BUFFER_COUNT);
 		canvas.requestFocus();
 	}
 	
@@ -278,14 +295,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Sets the shader to be applied to the screen image.
-	 * @param shader The shader
-	 */
-	public void setShader(final IShader shader) {
-		this.shader = shader;
-	}
-	
-	/**
 	 * Sets the resizable flag of the screen.
 	 * @param resizable The state
 	 */
@@ -302,8 +311,9 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Sets the full screen flag for the screen. This will toggle full screen mode, if supported.
-	 * This will cap the drawing rate to what the display supports.
+	 * Sets the full screen flag for the screen.
+	 * If true and supported, this will toggle full screen mode.
+	 * This will cap the drawing rate to what the default display configuration supports.
 	 * There may be performance issues.
 	 * @param fullScreen The full screen flag
 	 */
