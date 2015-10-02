@@ -1,29 +1,23 @@
 package de.sogomn.engine.net;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 /**
- * TCPConnection is for writing and reading simple data (well - text).
+ * TCPConnection is for communication between a client and a server.
+ * Should not be used with other protocols since the first four bytes of every buffer will be lost then.
  * @author Sogomn
  *
  */
 public class TCPConnection implements IClosable {
 	
-	private String address;
-	private int port;
-	
 	private Socket socket;
-	private BufferedReader reader;
-	private BufferedWriter writer;
+	private DataInputStream in;
+	private DataOutputStream out;
 	
 	private boolean open;
-	
-	private static final String NEW_LINE = "\r\n";
 	
 	/**
 	 * Constructs a new TCPConnection object. The internal socket will automatically connect.
@@ -31,9 +25,6 @@ public class TCPConnection implements IClosable {
 	 * @param port The port
 	 */
 	public TCPConnection(final String address, final int port) {
-		this.address = address;
-		this.port = port;
-		
 		try {
 			socket = new Socket(address, port);
 			
@@ -50,9 +41,6 @@ public class TCPConnection implements IClosable {
 	public TCPConnection(final Socket socket) {
 		this.socket = socket;
 		
-		address = socket.getInetAddress().getHostAddress();
-		port = socket.getPort();
-		
 		try {
 			initIO(socket);
 		} catch (final IOException ex) {
@@ -61,8 +49,8 @@ public class TCPConnection implements IClosable {
 	}
 	
 	private void initIO(final Socket socket) throws IOException {
-		reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		in = new DataInputStream(socket.getInputStream());
+		out = new DataOutputStream(socket.getOutputStream());
 		open = true;
 	}
 	
@@ -82,9 +70,10 @@ public class TCPConnection implements IClosable {
 	@Override
 	public void close() {
 		open = false;
+		
 		try {
-			reader.close();
-			writer.close();
+			in.close();
+			out.close();
 			socket.close();
 		} catch (final IOException | NullPointerException ex) {
 			System.err.println("Connection has already been closed");
@@ -92,27 +81,35 @@ public class TCPConnection implements IClosable {
 	}
 	
 	/**
-	 * Writes a message to the connection.
-	 * @param string The message to be written
+	 * Writes four bytes equal to the data length.
+	 * Then writes the data.
+	 * @param data The data to be written
 	 */
-	public void write(final String string) {
+	public void write(final byte[] data) {
 		try {
-			writer.write(string + NEW_LINE);
-			writer.flush();
+			final int length = data.length;
+			
+			out.write(length);
+			out.write(data);
+			out.flush();
 		} catch (final IOException | NullPointerException ex) {
 			handleException(ex);
 		}
 	}
 	
 	/**
-	 * Reads the next message.
-	 * @return The string
+	 * First reads four bytes which determine the data length.
+	 * Then reads the next bytes and returns them.
+	 * @return The read data
 	 */
-	public String read() {
+	public byte[] read() {
 		try {
-			final String string = reader.readLine();
+			final int length = in.readInt();
+			final byte[] data = new byte[length];
 			
-			return string;
+			in.readFully(data);
+			
+			return data;
 		} catch (final IOException | NullPointerException ex) {
 			handleException(ex);
 			
@@ -121,25 +118,26 @@ public class TCPConnection implements IClosable {
 	}
 	
 	/**
-	 * Returns the host address.
+	 * Returns the remote host address.
 	 * @return The address
 	 */
 	public final String getAddress() {
-		return address;
+		return socket.getInetAddress().getHostAddress();
 	}
 	
 	/**
-	 * Returns the port.
+	 * Returns the remote port.
 	 * @return The port
 	 */
 	public final int getPort() {
-		return port;
+		return socket.getPort();
 	}
 	
 	/**
 	 * Returns true if the connection is open, false otherwise.
 	 * @return The state
 	 */
+	@Override
 	public final boolean isOpen() {
 		return open;
 	}

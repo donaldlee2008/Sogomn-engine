@@ -4,4 +4,6 @@ interface IClosable {
 	
 	void close();
 	
+	boolean isOpen();
+	
 }

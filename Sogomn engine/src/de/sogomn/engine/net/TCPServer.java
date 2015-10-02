@@ -11,19 +11,18 @@ import java.net.Socket;
  */
 public class TCPServer implements IClosable {
 	
-	private int port;
-	
 	private ServerSocket server;
+	
+	private boolean open;
 	
 	/**
 	 * Constructs a new TCPServer object and binds the server to the given port.
 	 * @param port The port
 	 */
 	public TCPServer(final int port) {
-		this.port = port;
-		
 		try {
 			server = new ServerSocket(port);
+			open = true;
 		} catch (final IOException ex) {
 			handleException(ex);
 		}
@@ -44,6 +43,8 @@ public class TCPServer implements IClosable {
 	 */
 	@Override
 	public void close() {
+		open = false;
+		
 		try {
 			server.close();
 		} catch (final IOException | NullPointerException ex) {
@@ -52,7 +53,8 @@ public class TCPServer implements IClosable {
 	}
 	
 	/**
-	 * Accepts a connection. This method is blocking.
+	 * Accepts a connection.
+	 * Will block the thread until a connection has been accepted or an exception has been thrown.
 	 * @return The connection
 	 */
 	public TCPConnection acceptConnection() {
@@ -69,11 +71,20 @@ public class TCPServer implements IClosable {
 	}
 	
 	/**
-	 * Returns the port the server is bind to.
+	 * Returns the local port the server is bind to.
 	 * @return The port
 	 */
 	public final int getPort() {
-		return port;
+		return server.getLocalPort();
+	}
+	
+	/**
+	 * Returns true if the server is open and can accept connections, false otherwise.
+	 * @return The state
+	 */
+	@Override
+	public final boolean isOpen() {
+		return open;
 	}
 	
 }
