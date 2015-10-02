@@ -27,7 +27,7 @@ public abstract class AbstractListenerContainer<T> {
 	 * Adds a listener to the container.
 	 * @param t The listener
 	 */
-	public synchronized void addListener(final T t) {
+	public synchronized final void addListener(final T t) {
 		synchronized (listeners) {
 			listeners.add(t);
 		}
@@ -37,7 +37,7 @@ public abstract class AbstractListenerContainer<T> {
 	 * Removes a listener from the container.
 	 * @param t The listener
 	 */
-	public synchronized void removeListener(final T t) {
+	public synchronized final void removeListener(final T t) {
 		synchronized (listeners) {
 			listeners.remove(t);
 		}
@@ -47,7 +47,7 @@ public abstract class AbstractListenerContainer<T> {
 	 * Returns the size of the container.
 	 * @return The size
 	 */
-	public synchronized int getListenerCount() {
+	public synchronized final int getListenerCount() {
 		synchronized (listeners) {
 			return listeners.size();
 		}
