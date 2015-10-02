@@ -178,8 +178,21 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		}
 	}
 	
+	private int validateScreenImage() {
+		final GraphicsConfiguration graphicsConfiguration = canvas.getGraphicsConfiguration();
+		final int returnCode = screenImage.validate(graphicsConfiguration);
+		
+		return returnCode;
+	}
+	
 	private void drawOffscreen() {
 		do {
+			final int returnCode = validateScreenImage();
+			
+			if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
+				screenImage = createScreenImage();
+			}
+			
 			final Graphics2D g = screenImage.createGraphics();
 			
 			ImageUtils.applyLowGraphics(g);
@@ -194,6 +207,16 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		final BufferStrategy bufferStrategy = canvas.getBufferStrategy();
 		
 		do {
+			final int returnCode = validateScreenImage();
+			
+			if (returnCode == VolatileImage.IMAGE_RESTORED) {
+				drawOffscreen();
+			} else if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
+				screenImage = createScreenImage();
+				
+				drawOffscreen();
+			}
+			
 			final Graphics2D canvasGraphics = (Graphics2D)bufferStrategy.getDrawGraphics();
 			
 			ImageUtils.applyLowGraphics(canvasGraphics);
@@ -216,13 +239,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	public synchronized void redraw() {
 		if (!isVisible()) {
 			return;
-		}
-		
-		final GraphicsConfiguration graphicsConfiguration = canvas.getGraphicsConfiguration();
-		final int returnCode = screenImage.validate(graphicsConfiguration);
-		
-		if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
-			screenImage = createScreenImage();
 		}
 		
 		drawOffscreen();
