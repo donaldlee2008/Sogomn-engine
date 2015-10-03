@@ -10,6 +10,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -25,9 +26,10 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	private byte[] data;
 	private AudioFormat format;
 	
-	private long currentId;
+	private float gain;
 	
 	private HashMap<Long, Clip> clips;
+	private long currentId;
 	
 	private static final int BUFFER_SIZE = 24;
 	
@@ -58,17 +60,11 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 		}
 	}
 	
-	/**
-	 * Plays the sound a given amount of times.
-	 * This is non-blocking.
-	 * @param loops The amount of times the sound should be played
-	 * @return The clip id or ERROR (-1) in case of faliure
-	 */
-	public long play(final int loops) {
+	private Clip createClip(final long id) {
 		try {
 			final Clip clip = AudioSystem.getClip();
-			final long id = currentId;
 			
+			clip.open(format, data, 0, data.length);
 			clip.addLineListener(l -> {
 				final LineEvent.Type type = l.getType();
 				
@@ -77,18 +73,39 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 					notifyListeners(id);
 				}
 			});
-			clip.open(format, data, 0, data.length);
-			clip.loop(loops - 1);
+			
 			clips.put(id, clip);
 			
-			currentId++;
-			
-			return id;
+			return clip;
 		} catch (final LineUnavailableException ex) {
 			ex.printStackTrace();
 			
+			return null;
+		}
+	}
+	
+	/**
+	 * Plays the sound a given amount of times.
+	 * This method is non-blocking.
+	 * @param loops The amount of times the sound should be played
+	 * @return The clip id or ERROR (-1) in case of faliure
+	 */
+	public long play(final int loops) {
+		final long id = currentId++;
+		final Clip clip = createClip(id);
+		
+		if (clip == null) {
 			return ERROR;
 		}
+		
+		final FloatControl control = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
+		
+		gain = Math.min(Math.max(gain, control.getMinimum()), control.getMaximum());
+		
+		control.setValue(gain);
+		clip.loop(loops - 1);
+		
+		return id;
 	}
 	
 	/**
@@ -113,6 +130,15 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 			clip.close();
 			clips.remove(id);
 		}
+	}
+	
+	/**
+	 * Sets the gain for the sound.
+	 * The value gets clamped between the maximum and minumum gain which differs.
+	 * @param gain
+	 */
+	public void setGain(final float gain) {
+		this.gain = gain;
 	}
 	
 	/**
