@@ -13,6 +13,8 @@ It is made with only the standard Java API and thus highly portable.
 <br/>
 
 ##### Example
+
+```java
     final Clock gameClock = new Clock();
     final Screen screen = new Screen(800, 600, "My game");
     
