@@ -135,6 +135,7 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	/**
 	 * Sets the gain for the sound.
 	 * The value gets clamped between the maximum and minumum gain which differs.
+	 * Negative values are allowed.
 	 * @param gain The new gain value
 	 */
 	public void setGain(final float gain) {

@@ -43,6 +43,11 @@ public final class Camera implements IUpdatable {
 		y = Math.max(Math.min(y, maxY), minY);
 	}
 	
+	private void clampTarget() {
+		targetX = Math.max(Math.min(targetX, maxX), minX);
+		targetY = Math.max(Math.min(targetY, maxY), minY);
+	}
+	
 	/**
 	 * Updates the camera.
 	 */
@@ -85,7 +90,7 @@ public final class Camera implements IUpdatable {
 	 * @return The translated coordinate
 	 */
 	public double translateX(final double x) {
-		return (x + this.x);
+		return x + this.x;
 	}
 	
 	/**
@@ -94,7 +99,7 @@ public final class Camera implements IUpdatable {
 	 * @return The translated coordinate
 	 */
 	public double translateY(final double y) {
-		return (y + this.y);
+		return y + this.y;
 	}
 	
 	/**
@@ -113,6 +118,8 @@ public final class Camera implements IUpdatable {
 	public void moveBy(final double x, final double y) {
 		targetX += x;
 		targetY += y;
+		
+		clampTarget();
 	}
 	
 	/**
@@ -123,10 +130,12 @@ public final class Camera implements IUpdatable {
 	public void moveTo(final double x, final double y) {
 		targetX = x;
 		targetY = y;
+		
+		clampTarget();
 	}
 	
 	/**
-	 * Sets the camera position to the given one.
+	 * Sets the camera and the target position to the given one.
 	 * @param x The x coordinate
 	 * @param y The y coordinate
 	 */
@@ -135,6 +144,7 @@ public final class Camera implements IUpdatable {
 		this.y = targetY = y;
 		
 		clampPosition();
+		clampTarget();
 	}
 	
 	/**
@@ -208,6 +218,38 @@ public final class Camera implements IUpdatable {
 	 */
 	public double getTargetY() {
 		return targetY;
+	}
+	
+	/**
+	 * Returns the minimum x value.
+	 * @return The value
+	 */
+	public double getMinimumX() {
+		return minX;
+	}
+	
+	/**
+	 * Returns the minimum y value.
+	 * @return The value
+	 */
+	public double getMinimumY() {
+		return minY;
+	}
+	
+	/**
+	 * Returns the maximum x value.
+	 * @return The value
+	 */
+	public double getMaximumX() {
+		return maxX;
+	}
+	
+	/**
+	 * Returns the maximum y value.
+	 * @return The value
+	 */
+	public double getMaximumY() {
+		return maxY;
 	}
 	
 }
