@@ -93,12 +93,14 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		resizeBehavior = ResizeBehavior.STRETCH;
 		
 		canvas.setPreferredSize(new Dimension(width, height));
+		canvas.setIgnoreRepaint(true);
 		canvas.addMouseListener(mouse);
 		canvas.addMouseMotionListener(mouse);
 		canvas.addMouseWheelListener(mouse);
 		canvas.addKeyListener(keyboard);
 		
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.setIgnoreRepaint(true);
 		frame.addWindowListener(closingAdapter);
 		frame.addComponentListener(resizeAdapter);
 		frame.add(canvas, BorderLayout.CENTER);
@@ -314,6 +316,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Sets the resizable flag of the screen.
+	 * Does nothing if the screen is in full screen mode.
 	 * @param resizable The state
 	 */
 	public void setResizable(final boolean resizable) {
@@ -332,6 +335,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Sets the full screen flag for the screen.
 	 * If true and supported, this will toggle full screen mode.
 	 * This will cap the drawing rate to what the default display configuration supports.
+	 * It is highly recommended to set the screen to non-resizable.
 	 * There may be performance issues.
 	 * @param fullScreen The full screen flag
 	 */
@@ -356,7 +360,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Sets the icon of the screen. It will be displayed on the top left of the frame as well as in the taskbar.
+	 * Sets the icon of the screen.
+	 * It will be displayed on the top left of the frame as well as in the taskbar.
 	 * @param image The icon as an image
 	 */
 	public void setIcon(final BufferedImage image) {
