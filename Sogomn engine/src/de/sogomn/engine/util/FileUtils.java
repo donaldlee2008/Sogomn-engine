@@ -149,11 +149,14 @@ public final class FileUtils {
 	
 	/**
 	 * Creates a new file at the given path.
+	 * Also creates all nonexistent parent directories.
 	 * If the file already exists, nothing will happen.
 	 * @param path The path
 	 */
 	public static void createFile(final String path) {
 		final File file = new File(path);
+		
+		createFolder(path);
 		
 		try {
 			file.createNewFile();
