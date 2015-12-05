@@ -277,6 +277,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Closes the screen.
 	 */
 	public synchronized void close() {
+		setFullScreen(false);
 		hide();
 		open = false;
 		frame.dispose();
@@ -332,7 +333,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Sets the full screen flag for the screen.
 	 * If true and supported, this will toggle full screen mode.
 	 * This will cap the drawing rate to what the default display configuration supports.
 	 * It is highly recommended to set the screen to non-resizable.

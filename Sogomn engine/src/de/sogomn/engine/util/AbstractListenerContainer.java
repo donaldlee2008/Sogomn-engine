@@ -4,7 +4,8 @@ import java.util.ArrayList;
 
 /**
  * An abstract class that represents a container to hold multiple instances of one type.
- * All business methods are synchonized with the item list. Therefore it is useful for observables.
+ * Useful for listeners.
+ * Not synchronized.
  * @author Sogomn
  *
  * @param <T> The object type the container should hold
@@ -28,9 +29,7 @@ public abstract class AbstractListenerContainer<T> {
 	 * @param t The listener
 	 */
 	public synchronized final void addListener(final T t) {
-		synchronized (listeners) {
-			listeners.add(t);
-		}
+		listeners.add(t);
 	}
 	
 	/**
@@ -38,9 +37,7 @@ public abstract class AbstractListenerContainer<T> {
 	 * @param t The listener
 	 */
 	public synchronized final void removeListener(final T t) {
-		synchronized (listeners) {
-			listeners.remove(t);
-		}
+		listeners.remove(t);
 	}
 	
 	/**
@@ -48,9 +45,7 @@ public abstract class AbstractListenerContainer<T> {
 	 * @return The size
 	 */
 	public synchronized final int getListenerCount() {
-		synchronized (listeners) {
-			return listeners.size();
-		}
+		return listeners.size();
 	}
 	
 }
