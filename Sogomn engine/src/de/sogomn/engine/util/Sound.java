@@ -51,12 +51,10 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	}
 	
 	private void notifyListeners(final long id) {
-		synchronized (listeners) {
-			for (int i = 0; i < getListenerCount(); i++) {
-				final ISoundListener listener = listeners.get(i);
-				
-				listener.stopped(this, id);
-			}
+		for (int i = 0; i < getListenerCount(); i++) {
+			final ISoundListener listener = listeners.get(i);
+			
+			listener.stopped(this, id);
 		}
 	}
 	

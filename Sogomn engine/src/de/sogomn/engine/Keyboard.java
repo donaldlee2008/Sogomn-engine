@@ -17,12 +17,10 @@ final class Keyboard extends AbstractListenerContainer<IKeyboardListener> implem
 	private void fireKeyboardEvent(final KeyEvent k, final boolean flag) {
 		final int key = k.getKeyCode();
 		
-		synchronized (listeners) {
-			for (int i = 0; i < getListenerCount(); i++) {
-				final IKeyboardListener listener = listeners.get(i);
-				
-				listener.keyboardEvent(key, flag);
-			}
+		for (int i = 0; i < getListenerCount(); i++) {
+			final IKeyboardListener listener = listeners.get(i);
+			
+			listener.keyboardEvent(key, flag);
 		}
 	}
 	

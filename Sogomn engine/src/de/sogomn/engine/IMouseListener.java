@@ -18,6 +18,12 @@ public interface IMouseListener {
 	
 	/**
 	 * Usually called when the mouse was moved.
+	 * Use the modifier masks located in the MouseEvent class to use the modifiers.
+	 * If the button one is pressed then
+	 * {@code
+	 * (modifiers & MouseEvent.BUTTON1_MASK) != 0
+	 * }
+	 * is true.
 	 * @param x The x coordinate
 	 * @param y The y coordinate
 	 * @param modifiers The non-extended button modifiers
