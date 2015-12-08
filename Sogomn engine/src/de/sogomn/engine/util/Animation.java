@@ -46,12 +46,10 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	}
 	
 	private void notifyListeners() {
-		synchronized (listeners) {
-			for (int i = 0; i < listeners.size(); i++) {
-				final IAnimationListener listener = listeners.get(i);
-				
-				listener.looped(this);
-			}
+		for (int i = 0; i < listeners.size(); i++) {
+			final IAnimationListener listener = listeners.get(i);
+			
+			listener.looped(this);
 		}
 	}
 	

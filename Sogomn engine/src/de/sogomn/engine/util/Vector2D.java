@@ -28,6 +28,14 @@ public final strictfp class Vector2D {
 	}
 	
 	/**
+	 * Constructs a new vector with the given value for both coordinates.
+	 * @param value The value for both coordinates
+	 */
+	public Vector2D(final double value) {
+		this(value, value);
+	}
+	
+	/**
 	 * Returns a string containing the coordinates and the length of the vector.
 	 * Keep in mind that the length will be calculated first.
 	 */

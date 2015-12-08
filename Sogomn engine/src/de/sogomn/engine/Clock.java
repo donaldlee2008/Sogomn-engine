@@ -24,12 +24,10 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	}
 	
 	private void notifyUpdatables(final float delta) {
-		synchronized (listeners) {
-			for (int i = 0; i < getListenerCount(); i++) {
-				final IUpdatable updatable = listeners.get(i);
-				
-				updatable.update(delta);
-			}
+		for (int i = 0; i < getListenerCount(); i++) {
+			final IUpdatable updatable = listeners.get(i);
+			
+			updatable.update(delta);
 		}
 	}
 	
