@@ -53,28 +53,20 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 		clips = new HashMap<Long, Clip>();
 	}
 	
-	private void notifyListeners(final long id) {
-		for (int i = 0; i < getListenerCount(); i++) {
-			final ISoundListener listener = listeners.get(i);
-			
-			listener.stopped(this, id);
-		}
-	}
-	
 	private Clip createClip(final long id) {
 		try {
 			final Clip clip = AudioSystem.getClip();
-			final LineListener listener = l -> {
+			final LineListener lineListener = l -> {
 				final LineEvent.Type type = l.getType();
 				
 				if (type == LineEvent.Type.STOP) {
 					stop(id);
-					notifyListeners(id);
+					notifyListeners(listener -> listener.stopped(this, id));
 				}
 			};
 			
 			clip.open(format, data, 0, data.length);
-			clip.addLineListener(listener);
+			clip.addLineListener(lineListener);
 			
 			clips.put(id, clip);
 			

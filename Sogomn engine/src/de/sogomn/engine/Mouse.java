@@ -40,11 +40,7 @@ final class Mouse extends AbstractListenerContainer<IMouseListener> implements M
 		final int y = getRelativeY(m.getY());
 		final int button = m.getButton();
 		
-		for (int i = 0; i < getListenerCount(); i++) {
-			final IMouseListener listener = listeners.get(i);
-			
-			listener.mouseEvent(x, y, button, flag);
-		}
+		notifyListeners(listener -> listener.mouseEvent(x, y, button, flag));
 	}
 	
 	private void fireMouseMovedEvent(final MouseEvent m) {
@@ -52,11 +48,7 @@ final class Mouse extends AbstractListenerContainer<IMouseListener> implements M
 		final int y = getRelativeY(m.getY());
 		final int modifiers = m.getModifiers();
 		
-		for (int i = 0; i < getListenerCount(); i++) {
-			final IMouseListener listener = listeners.get(i);
-			
-			listener.mouseMotionEvent(x, y, modifiers);
-		}
+		notifyListeners(listener -> listener.mouseMotionEvent(x, y, modifiers));
 	}
 	
 	private void fireMouseWheelEvent(final MouseWheelEvent m) {
@@ -64,11 +56,7 @@ final class Mouse extends AbstractListenerContainer<IMouseListener> implements M
 		final int y = getRelativeY(m.getY());
 		final int rotation = m.getWheelRotation();
 		
-		for (int i = 0; i < getListenerCount(); i++) {
-			final IMouseListener listener = listeners.get(i);
-			
-			listener.mouseWheelEvent(x, y, rotation);
-		}
+		notifyListeners(listener -> listener.mouseWheelEvent(x, y, rotation));
 	}
 	
 	@Override

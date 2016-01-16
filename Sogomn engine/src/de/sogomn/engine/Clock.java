@@ -23,14 +23,6 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 		reset();
 	}
 	
-	private void notifyUpdatables(final float delta) {
-		for (int i = 0; i < getListenerCount(); i++) {
-			final IUpdatable updatable = listeners.get(i);
-			
-			updatable.update(delta);
-		}
-	}
-	
 	/**
 	 * Updates the clock and notifies all listening IUpdatable objects.
 	 * The passed value "delta" is the elapsed time in seconds.
@@ -39,7 +31,7 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 		final long now = System.nanoTime();
 		final float elapsedInSeconds = (now - lastTime) / NANO_SECONDS_PER_SECOND;
 		
-		notifyUpdatables(elapsedInSeconds);
+		notifyListeners(updatable -> updatable.update(elapsedInSeconds));
 		
 		lastTime = now;
 		

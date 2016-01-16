@@ -1,6 +1,7 @@
 package de.sogomn.engine.util;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * An abstract class that represents a container to hold multiple instances of one type.
@@ -11,10 +12,7 @@ import java.util.ArrayList;
  */
 public abstract class AbstractListenerContainer<T> {
 	
-	/**
-	 * The listener list.
-	 */
-	protected ArrayList<T> listeners;
+	private ArrayList<T> listeners;
 	
 	/**
 	 * Initializes the listener list.
@@ -23,28 +21,34 @@ public abstract class AbstractListenerContainer<T> {
 		listeners = new ArrayList<T>();
 	}
 	
+	protected void notifyListeners(final Consumer<? super T> consumer) {
+		synchronized (listeners) {
+			for (int i = 0; i < listeners.size(); i++) {
+				final T listener = listeners.get(i);
+				
+				consumer.accept(listener);
+			}
+		}
+	}
+	
 	/**
 	 * Adds a listener to the container.
 	 * @param t The listener
 	 */
-	public synchronized final void addListener(final T t) {
-		listeners.add(t);
+	public final void addListener(final T t) {
+		synchronized (listeners) {
+			listeners.add(t);
+		}
 	}
 	
 	/**
 	 * Removes a listener from the container.
 	 * @param t The listener
 	 */
-	public synchronized final void removeListener(final T t) {
-		listeners.remove(t);
-	}
-	
-	/**
-	 * Returns the size of the container.
-	 * @return The size
-	 */
-	public synchronized final int getListenerCount() {
-		return listeners.size();
+	public final void removeListener(final T t) {
+		synchronized (listeners) {
+			listeners.remove(t);
+		}
 	}
 	
 }

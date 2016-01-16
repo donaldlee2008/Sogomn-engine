@@ -170,14 +170,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		renderHeight = initialHeight;
 	}
 	
-	private void notifyDrawables(final Graphics2D g) {
-		for (int i = 0; i < getListenerCount(); i++) {
-			final IDrawable drawable = listeners.get(i);
-			
-			drawable.draw(g);
-		}
-	}
-	
 	private int validateScreenImage() {
 		final GraphicsConfiguration graphicsConfiguration = canvas.getGraphicsConfiguration();
 		final int returnCode = screenImage.validate(graphicsConfiguration);
@@ -197,7 +189,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			
 			ImageUtils.applyLowGraphics(g);
 			
-			notifyDrawables(g);
+			notifyListeners(drawable -> drawable.draw(g));
 			
 			g.dispose();
 		} while (screenImage.contentsLost());

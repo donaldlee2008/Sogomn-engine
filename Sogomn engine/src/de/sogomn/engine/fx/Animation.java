@@ -47,14 +47,6 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 		this(interval, spriteSheet.getSprites());
 	}
 	
-	private void notifyListeners() {
-		for (int i = 0; i < listeners.size(); i++) {
-			final IAnimationListener listener = listeners.get(i);
-			
-			listener.looped(this);
-		}
-	}
-	
 	/**
 	 * Updates the animation.
 	 */
@@ -92,7 +84,7 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 			currentIndex = 0;
 			currentLoop++;
 			
-			notifyListeners();
+			notifyListeners(listener -> listener.looped(this));
 		}
 	}
 	
