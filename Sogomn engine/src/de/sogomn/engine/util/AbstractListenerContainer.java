@@ -5,7 +5,6 @@ import java.util.ArrayList;
 /**
  * An abstract class that represents a container to hold multiple instances of one type.
  * Useful for listeners.
- * Not synchronized.
  * @author Sogomn
  *
  * @param <T> The object type the container should hold

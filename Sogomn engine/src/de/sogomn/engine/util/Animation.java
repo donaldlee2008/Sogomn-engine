@@ -6,6 +6,7 @@ import de.sogomn.engine.IUpdatable;
 
 /**
  * A class to handle animations. The method "update" needs to be called every frame in order to work.
+ * Uses the Scheduler class.
  * @author Sogomn
  *
  */
@@ -14,8 +15,7 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	private BufferedImage[] images;
 	private int currentIndex;
 	
-	private float delay;
-	private double timer;
+	private Scheduler scheduler;
 	
 	private int maxLoops, currentLoop;
 	
@@ -25,24 +25,28 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	public static final int INFINITE = -1;
 	
 	/**
-	 * Constructs an Animation object with the given delay between the images and the passed images.
-	 * @param delay The delay between the images in seconds
+	 * Constructs an Animation object with the given interval between the images and the passed images.
+	 * @param interval The interval between the images in seconds
 	 * @param images The images
 	 */
-	public Animation(final float delay, final BufferedImage... images) {
-		this.delay = delay;
+	public Animation(final float interval, final BufferedImage... images) {
 		this.images = images;
 		
+		scheduler = new Scheduler(interval);
 		maxLoops = INFINITE;
+		
+		scheduler.addListener(() -> {
+			next();
+		});
 	}
 	
 	/**
-	 * Constructs an Animation object with the given delay between the images and all images in the sprite sheet.
-	 * @param delay The delay between the images in seconds
+	 * Constructs an Animation object with the given interval between the images and all images in the sprite sheet.
+	 * @param interval The interval between the images in seconds
 	 * @param spriteSheet The SpriteSheet object containing the images
 	 */
-	public Animation(final float delay, final SpriteSheet spriteSheet) {
-		this(delay, spriteSheet.getSprites());
+	public Animation(final float interval, final SpriteSheet spriteSheet) {
+		this(interval, spriteSheet.getSprites());
 	}
 	
 	private void notifyListeners() {
@@ -62,35 +66,37 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 			return;
 		}
 		
-		timer += delta;
-		
-		if (timer >= delay) {
-			timer = 0;
-			currentIndex++;
-			
-			if (currentIndex > images.length - 1) {
-				currentIndex = 0;
-				currentLoop++;
-				
-				notifyListeners();
-			}
-		}
+		scheduler.update(delta);
 	}
 	
 	/**
 	 * Resets the timer, the index and the loop count.
 	 */
 	public void reset() {
-		timer = 0;
+		scheduler.reset();
 		currentIndex = currentLoop = 0;
 	}
 	
 	/**
-	 * Sets the delay between the frames.
-	 * @param delay The delay
+	 * Skips the current frame.
 	 */
-	public void setDelay(final float delay) {
-		this.delay = delay;
+	public void next() {
+		currentIndex++;
+		
+		if (currentIndex > images.length - 1) {
+			currentIndex = 0;
+			currentLoop++;
+			
+			notifyListeners();
+		}
+	}
+	
+	/**
+	 * Sets the interval between the frames.
+	 * @param interval The new interval between the frames
+	 */
+	public void setInterval(final float interval) {
+		scheduler.setInterval(interval);
 	}
 	
 	/**
@@ -111,11 +117,11 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	}
 	
 	/**
-	 * Returns the delay between each image.
-	 * @return The delay
+	 * Returns the interval between each image.
+	 * @return The interval between the frames
 	 */
-	public float getImageDelay() {
-		return delay;
+	public float getInterval() {
+		return scheduler.getInterval();
 	}
 	
 	/**

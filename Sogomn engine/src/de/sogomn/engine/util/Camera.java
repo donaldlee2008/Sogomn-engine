@@ -4,10 +4,18 @@ import java.awt.Graphics2D;
 
 import de.sogomn.engine.IUpdatable;
 
+/**
+ * This class can be used as a camera for games.
+ * In order to apply the translation the method "apply" needs to be called before rendering. It also needs to get updated every tick.
+ * After rendering the method "revert" should be called to undo the translation.
+ * @author Sogomn
+ *
+ */
 public final class Camera implements IUpdatable {
 	
 	private double x, y;
 	private double targetX, targetY;
+	private double xOffset, yOffset;
 	
 	private double minX, minY;
 	private double maxX, maxY;
@@ -20,12 +28,12 @@ public final class Camera implements IUpdatable {
 	public static final float NO_SMOOTHNESS = 0;
 	
 	/**
-	 * Represents a minimum value of any size.
+	 * Represents a minimum value of no fixed size.
 	 */
 	public static final int NO_MINIMUM = Integer.MIN_VALUE;
 	
 	/**
-	 * Represents a maximum value of any size.
+	 * Represents a maximum value of no fixed size.
 	 */
 	public static final int NO_MAXIMUM = Integer.MAX_VALUE;
 	
@@ -63,8 +71,6 @@ public final class Camera implements IUpdatable {
 			x += (distX / smoothness) * delta;
 			y += (distY / smoothness) * delta;
 		}
-		
-		clampPosition();
 	}
 	
 	/**
@@ -72,7 +78,12 @@ public final class Camera implements IUpdatable {
 	 * @param g The Graphics2D object
 	 */
 	public void apply(final Graphics2D g) {
-		g.translate(-x, -y);
+		clampPosition();
+		
+		final double actualX = x + xOffset;
+		final double actualY = y + yOffset;
+		
+		g.translate(-actualX, -actualY);
 	}
 	
 	/**
@@ -81,25 +92,10 @@ public final class Camera implements IUpdatable {
 	 * @param g The Graphics2D object
 	 */
 	public void revert(final Graphics2D g) {
-		g.translate(x, y);
-	}
-	
-	/**
-	 * Translates the given coordinate to the camera space.
-	 * @param x The x coordinate
-	 * @return The translated coordinate
-	 */
-	public double translateX(final double x) {
-		return x + this.x;
-	}
-	
-	/**
-	 * Translates the given coordinate to the camera space.
-	 * @param y The y coordinate
-	 * @return The translated coordinate
-	 */
-	public double translateY(final double y) {
-		return y + this.y;
+		final double actualX = x + xOffset;
+		final double actualY = y + yOffset;
+		
+		g.translate(actualX, actualY);
 	}
 	
 	/**
@@ -108,6 +104,27 @@ public final class Camera implements IUpdatable {
 	public void reset() {
 		x = y = 0;
 		targetX = targetY = 0;
+		
+		resetShake();
+	}
+	
+	/**
+	 * Offsets the screen by a random value without affecting its coordinates.
+	 * Call "resetShake" to revert it.
+	 * The offset will be from -value to +value.
+	 * @param xAmount The amount of offset on the x-axis
+	 * @param yAmount The amount of offset on the y-axis
+	 */
+	public void shake(final double xAmount, final double yAmount) {
+		xOffset = Math.random() * xAmount * 2 - xAmount;
+		yOffset = Math.random() * yAmount * 2 - yAmount;
+	}
+	
+	/**
+	 * Resets the camera offset.
+	 */
+	public void resetShake() {
+		xOffset = yOffset = 0;
 	}
 	
 	/**
@@ -143,8 +160,8 @@ public final class Camera implements IUpdatable {
 		this.x = targetX = x;
 		this.y = targetY = y;
 		
-		clampPosition();
 		clampTarget();
+		clampPosition();
 	}
 	
 	/**

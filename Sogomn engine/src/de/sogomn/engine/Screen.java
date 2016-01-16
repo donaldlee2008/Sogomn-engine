@@ -369,11 +369,12 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	/**
 	 * Sets the size of the inner screen. The method "hide" will be called.
 	 * If the screen was visible before it will reappear.
+	 * This will reset the screen position.
 	 * @param width The target width
 	 * @param height The target height
 	 */
 	public void setSize(final int width, final int height) {
-		final boolean wasVisible = isVisible();
+		final boolean visible = isVisible();
 		
 		hide();
 		
@@ -381,9 +382,18 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		
-		if (wasVisible) {
+		if (visible) {
 			show();
 		}
+	}
+	
+	/**
+	 * Sets the location of the outer frame.
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 */
+	public void setLocation(final int x, final int y) {
+		frame.setLocation(x, y);
 	}
 	
 	/**
@@ -439,7 +449,15 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Returns the inial width of the screen.
+	 * Returns whether the screen is focused or not.
+	 * @return The state
+	 */
+	public boolean isFocused() {
+		return frame.isFocused();
+	}
+	
+	/**
+	 * Returns the initial width of the screen.
 	 * This will not change, even when resized.
 	 * @return The width
 	 */
@@ -448,7 +466,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Returns the inial height of the screen.
+	 * Returns the initial height of the screen.
 	 * This will not change, even when resized.
 	 * @return The height
 	 */
