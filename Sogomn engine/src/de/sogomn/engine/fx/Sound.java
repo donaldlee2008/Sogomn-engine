@@ -1,4 +1,4 @@
-package de.sogomn.engine.util;
+package de.sogomn.engine.fx;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,8 +12,11 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import de.sogomn.engine.util.AbstractListenerContainer;
 
 
 /**
@@ -61,16 +64,17 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	private Clip createClip(final long id) {
 		try {
 			final Clip clip = AudioSystem.getClip();
-			
-			clip.open(format, data, 0, data.length);
-			clip.addLineListener(l -> {
+			final LineListener listener = l -> {
 				final LineEvent.Type type = l.getType();
 				
 				if (type == LineEvent.Type.STOP) {
 					stop(id);
 					notifyListeners(id);
 				}
-			});
+			};
+			
+			clip.open(format, data, 0, data.length);
+			clip.addLineListener(listener);
 			
 			clips.put(id, clip);
 			

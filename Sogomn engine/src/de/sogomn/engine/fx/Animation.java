@@ -1,8 +1,9 @@
-package de.sogomn.engine.util;
+package de.sogomn.engine.fx;
 
 import java.awt.image.BufferedImage;
 
 import de.sogomn.engine.IUpdatable;
+import de.sogomn.engine.util.AbstractListenerContainer;
 
 /**
  * A class to handle animations. The method "update" needs to be called every frame in order to work.
@@ -15,7 +16,8 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	private BufferedImage[] images;
 	private int currentIndex;
 	
-	private Scheduler scheduler;
+	private double timer;
+	private float interval;
 	
 	private int maxLoops, currentLoop;
 	
@@ -30,14 +32,10 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	 * @param images The images
 	 */
 	public Animation(final float interval, final BufferedImage... images) {
+		this.interval = interval;
 		this.images = images;
 		
-		scheduler = new Scheduler(interval);
 		maxLoops = INFINITE;
-		
-		scheduler.addListener(() -> {
-			next();
-		});
 	}
 	
 	/**
@@ -66,21 +64,28 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 			return;
 		}
 		
-		scheduler.update(delta);
+		timer += delta;
+		
+		if (timer >= interval) {
+			timer = 0;
+			
+			nextFrame();
+		}
 	}
 	
 	/**
 	 * Resets the timer, the index and the loop count.
 	 */
 	public void reset() {
-		scheduler.reset();
-		currentIndex = currentLoop = 0;
+		timer = 0;
+		currentIndex = 0;
+		currentLoop = 0;
 	}
 	
 	/**
 	 * Skips the current frame.
 	 */
-	public void next() {
+	public void nextFrame() {
 		currentIndex++;
 		
 		if (currentIndex > images.length - 1) {
@@ -96,7 +101,7 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	 * @param interval The new interval between the frames
 	 */
 	public void setInterval(final float interval) {
-		scheduler.setInterval(interval);
+		this.interval = interval;
 	}
 	
 	/**
@@ -121,7 +126,7 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	 * @return The interval between the frames
 	 */
 	public float getInterval() {
-		return scheduler.getInterval();
+		return interval;
 	}
 	
 	/**

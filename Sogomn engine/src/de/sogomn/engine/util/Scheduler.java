@@ -1,34 +1,46 @@
 package de.sogomn.engine.util;
 
+import java.util.LinkedHashMap;
+
 import de.sogomn.engine.IUpdatable;
 
 /**
- * The Scheduler class can be used to schedule tasks. It is basically a timer.
+ * The Scheduler class can be used to schedule tasks.
  * The method "update" needs to be called regularly in order to work.
- * It will loop until "disable" is called.
+ * It will execute the tasks one after another.
  * @author Sogomn
  *
  */
-public final class Scheduler extends AbstractListenerContainer<Runnable> implements IUpdatable {
+public final class Scheduler implements IUpdatable {
 	
-	private float interval;
 	private double timer;
 	
-	private boolean enabled;
+	private LinkedHashMap<Runnable, Float> tasks;
+	private Runnable currentTask;
 	
 	/**
-	 * Constructs a new Scheduler which will execute the task after the given time.
-	 * @param interval The interval the task should be executed in seconds.
+	 * Passed to loop infinitely.
 	 */
-	public Scheduler(final float interval) {
-		this.interval = interval;
-		
-		enable();
+	public static final int INFINITE = -1;
+	
+	/**
+	 * Constructs a new Scheduler which can execute tasks.
+	 */
+	public Scheduler() {
+		tasks = new LinkedHashMap<Runnable, Float>();
 	}
 	
-	private void notifyListeners() {
-		for (final Runnable runnable : listeners) {
-			runnable.run();
+	private boolean isCurrentTaskDone() {
+		if (currentTask == null) {
+			return false;
+		}
+		
+		final float time = tasks.get(currentTask);
+		
+		if (timer >= time) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 	
@@ -37,30 +49,14 @@ public final class Scheduler extends AbstractListenerContainer<Runnable> impleme
 	 */
 	@Override
 	public void update(final float delta) {
-		if (!enabled) {
-			return;
-		}
-		
 		timer += delta;
 		
-		if (timer >= interval) {
+		if (isCurrentTaskDone()) {
+			currentTask.run();
+			removeTask(currentTask);
 			reset();
-			notifyListeners();
+			currentTask = getNextTask();
 		}
-	}
-	
-	/**
-	 * Enables the scheduler. It can now be updated.
-	 */
-	public void enable() {
-		enabled = true;
-	}
-	
-	/**
-	 * Enables the scheduler. It can no longer be updated.
-	 */
-	public void disable() {
-		enabled = false;
 	}
 	
 	/**
@@ -70,20 +66,16 @@ public final class Scheduler extends AbstractListenerContainer<Runnable> impleme
 		timer = 0;
 	}
 	
-	/**
-	 * Sets the interval the task should be executed.
-	 * @param interval The interval in seconds
-	 */
-	public void setInterval(final float interval) {
-		this.interval = interval;
+	public void addTask(final Runnable task, final float time, final int loops) {
+		tasks.put(task, time);
 	}
 	
-	/**
-	 * Returns the interval.
-	 * @return The interval
-	 */
-	public float getInterval() {
-		return interval;
+	public void addTask(final Runnable task, final float time) {
+		addTask(task, time, 1);
+	}
+	
+	public void removeTask(final Runnable task) {
+		tasks.remove(task);
 	}
 	
 	/**
@@ -94,12 +86,14 @@ public final class Scheduler extends AbstractListenerContainer<Runnable> impleme
 		return timer;
 	}
 	
-	/**
-	 * Return whether the scheduler is enabled or not.
-	 * @return True if it is enabled; false otherwise
-	 */
-	public boolean isEnabled() {
-		return enabled;
+	public Runnable getNextTask() {
+		if (tasks.isEmpty()) {
+			return null;
+		}
+		
+		final Runnable task = tasks.keySet().iterator().next();
+		
+		return task;
 	}
 	
 }

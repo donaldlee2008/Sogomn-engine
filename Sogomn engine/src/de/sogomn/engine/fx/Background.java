@@ -1,10 +1,11 @@
-package de.sogomn.engine.util;
+package de.sogomn.engine.fx;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import de.sogomn.engine.IDrawable;
 import de.sogomn.engine.IUpdatable;
+import de.sogomn.engine.util.ImageUtils;
 
 /**
  * This class can be used for backgrounds in games.
