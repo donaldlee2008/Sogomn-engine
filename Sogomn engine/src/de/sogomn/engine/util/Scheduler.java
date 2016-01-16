@@ -19,11 +19,6 @@ public final class Scheduler implements IUpdatable {
 	private Runnable currentTask;
 	
 	/**
-	 * Passed to loop infinitely.
-	 */
-	public static final int INFINITE = -1;
-	
-	/**
 	 * Constructs a new Scheduler which can execute tasks.
 	 */
 	public Scheduler() {
@@ -66,14 +61,23 @@ public final class Scheduler implements IUpdatable {
 		timer = 0;
 	}
 	
-	public void addTask(final Runnable task, final float time, final int loops) {
-		tasks.put(task, time);
-	}
-	
+	/**
+	 * Adds a task to the schedule.
+	 * @param task The task
+	 * @param time The time the task should be executed in seconds
+	 */
 	public void addTask(final Runnable task, final float time) {
-		addTask(task, time, 1);
+		tasks.put(task, time);
+		
+		if (currentTask == null) {
+			currentTask = getNextTask();
+		}
 	}
 	
+	/**
+	 * Removes a task from the schedule.
+	 * @param task The task to be removed
+	 */
 	public void removeTask(final Runnable task) {
 		tasks.remove(task);
 	}
@@ -86,6 +90,10 @@ public final class Scheduler implements IUpdatable {
 		return timer;
 	}
 	
+	/**
+	 * Returns the next task to be executed.
+	 * @return The task
+	 */
 	public Runnable getNextTask() {
 		if (tasks.isEmpty()) {
 			return null;
