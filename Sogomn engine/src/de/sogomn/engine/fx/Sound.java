@@ -21,6 +21,7 @@ import de.sogomn.engine.util.AbstractListenerContainer;
 
 /**
  * Sound class to load and play sounds. Use the static methods to create new objects.
+ * Might be a little laggy.
  * @author Sogomn
  *
  */
@@ -127,6 +128,15 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	}
 	
 	/**
+	 * Stops all clips.
+	 */
+	public void stop() {
+		for (int i = 0; i < currentId; i++) {
+			stop(i);
+		}
+	}
+	
+	/**
 	 * Sets the gain for the sound.
 	 * The value gets clamped between the maximum and minumum gain which differs.
 	 * Negative values are allowed.
@@ -134,6 +144,14 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	 */
 	public void setGain(final float gain) {
 		this.gain = gain;
+	}
+	
+	/**
+	 * Returns whether or not this sound is currently being played.
+	 * @return The state
+	 */
+	public boolean isPlaying() {
+		return !clips.isEmpty();
 	}
 	
 	/**
