@@ -155,8 +155,11 @@ public final class FileUtils {
 	 */
 	public static void createFile(final String path) {
 		final File file = new File(path);
+		final File parent = file.getParentFile();
 		
-		createFolder(path);
+		if (parent != null) {
+			createFolder(parent.getPath());
+		}
 		
 		try {
 			file.createNewFile();
