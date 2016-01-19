@@ -1,8 +1,10 @@
-package de.sogomn.engine.util;
+package de.sogomn.engine.fx;
 
 import java.awt.Graphics2D;
 
 import de.sogomn.engine.IUpdatable;
+import de.sogomn.engine.util.Scheduler;
+import de.sogomn.engine.util.Scheduler.Task;
 
 /**
  * This class can be used as a camera for games.
@@ -15,12 +17,14 @@ public final class Camera implements IUpdatable {
 	
 	private double x, y;
 	private double targetX, targetY;
-	private double xOffset, yOffset;
 	
 	private double minX, minY;
 	private double maxX, maxY;
 	
 	private float smoothness;
+	
+	private Scheduler shakeScheduler;
+	private ShakingConstraints shakingConstraints;
 	
 	/**
 	 * If passed to the method "setSmoothness" the camera position will automatically be the target position.
@@ -44,23 +48,11 @@ public final class Camera implements IUpdatable {
 		minX = minY = NO_MINIMUM;
 		maxX = maxY = NO_MAXIMUM;
 		smoothness = NO_SMOOTHNESS;
+		shakeScheduler = new Scheduler();
+		shakingConstraints = new ShakingConstraints();
 	}
 	
-	private void clampPosition() {
-		x = Math.max(Math.min(x, maxX), minX);
-		y = Math.max(Math.min(y, maxY), minY);
-	}
-	
-	private void clampTarget() {
-		targetX = Math.max(Math.min(targetX, maxX), minX);
-		targetY = Math.max(Math.min(targetY, maxY), minY);
-	}
-	
-	/**
-	 * Updates the camera.
-	 */
-	@Override
-	public void update(final float delta) {
+	private void move(final float delta) {
 		if (smoothness == NO_SMOOTHNESS) {
 			x = targetX;
 			y = targetY;
@@ -73,17 +65,47 @@ public final class Camera implements IUpdatable {
 		}
 	}
 	
+	private void clampPosition() {
+		x = Math.max(Math.min(x, maxX), minX);
+		y = Math.max(Math.min(y, maxY), minY);
+		
+		if (getX() < minX) {
+			shakingConstraints.xOffset = x - minX;
+		} else if (getX() > maxX) {
+			shakingConstraints.xOffset = x - maxX;
+		}
+		
+		if (getY() < minY) {
+			shakingConstraints.yOffset = y - minY;
+		} else if (getY() > maxY) {
+			shakingConstraints.yOffset = y - maxY;
+		}
+	}
+	
+	private void clampTarget() {
+		targetX = Math.max(Math.min(targetX, maxX), minX);
+		targetY = Math.max(Math.min(targetY, maxY), minY);
+	}
+	
+	/**
+	 * Updates the camera.
+	 */
+	@Override
+	public void update(final float delta) {
+		move(delta);
+		
+		shakeScheduler.update(delta);
+		shakingConstraints.update(delta);
+		
+		clampPosition();
+	}
+	
 	/**
 	 * Applies the camera translation to the given Graphics2D object.
 	 * @param g The Graphics2D object
 	 */
 	public void apply(final Graphics2D g) {
-		clampPosition();
-		
-		final double actualX = x + xOffset;
-		final double actualY = y + yOffset;
-		
-		g.translate(-actualX, -actualY);
+		g.translate(-getX(), -getY());
 	}
 	
 	/**
@@ -92,39 +114,41 @@ public final class Camera implements IUpdatable {
 	 * @param g The Graphics2D object
 	 */
 	public void revert(final Graphics2D g) {
-		final double actualX = x + xOffset;
-		final double actualY = y + yOffset;
-		
-		g.translate(actualX, actualY);
+		g.translate(getX(), getY());
 	}
 	
 	/**
 	 * Resets the camera position and target.
+	 * Also stops camera shake.
 	 */
 	public void reset() {
 		x = y = 0;
 		targetX = targetY = 0;
-		
-		resetShake();
 	}
 	
 	/**
-	 * Offsets the screen by a random value without affecting its coordinates.
-	 * Call "resetShake" to revert it.
-	 * The offset will be from -value to +value.
-	 * @param xAmount The amount of offset on the x-axis
-	 * @param yAmount The amount of offset on the y-axis
-	 */
-	public void shake(final double xAmount, final double yAmount) {
-		xOffset = Math.random() * xAmount * 2 - xAmount;
-		yOffset = Math.random() * yAmount * 2 - yAmount;
-	}
-	
-	/**
-	 * Resets the camera offset.
+	 * Stops and resets the camera shake.
 	 */
 	public void resetShake() {
-		xOffset = yOffset = 0;
+		shakeScheduler.clearTasks();
+		shakingConstraints = new ShakingConstraints();
+	}
+	
+	/**
+	 * Applies camera shake for the given duration with the given intensity.
+	 * @param xIntensity The intensity on the x-axis
+	 * @param yIntensity The intensity on the y-axis
+	 * @param duration The duration in seconds
+	 */
+	public void shake(final double xIntensity, final double yIntensity, final float duration) {
+		final Task task = new Task(() -> {
+			resetShake();
+		}, duration);
+		
+		resetShake();
+		shakeScheduler.addTask(task);
+		
+		shakingConstraints = new ShakingConstraints(xIntensity, yIntensity, duration);
 	}
 	
 	/**
@@ -210,7 +234,7 @@ public final class Camera implements IUpdatable {
 	 * @return The coordinate
 	 */
 	public double getX() {
-		return x;
+		return x + shakingConstraints.xOffset;
 	}
 	
 	/**
@@ -218,6 +242,22 @@ public final class Camera implements IUpdatable {
 	 * @return The coordinate
 	 */
 	public double getY() {
+		return y + shakingConstraints.yOffset;
+	}
+	
+	/**
+	 * Returns the x coordinate of the camera without camera shake applied.
+	 * @return The logical x coordinate
+	 */
+	public double getLogicalX() {
+		return x;
+	}
+	
+	/**
+	 * Returns the y coordinate of the camera without camera shake applied.
+	 * @return The logical y coordinate
+	 */
+	public double getLogicalY() {
 		return y;
 	}
 	
@@ -267,6 +307,46 @@ public final class Camera implements IUpdatable {
 	 */
 	public double getMaximumY() {
 		return maxY;
+	}
+	
+	private class ShakingConstraints implements IUpdatable {
+		
+		private double xOffset, yOffset;
+		private double xIntensity, yIntensity;
+		
+		final boolean shaking;
+		final double initialXIntensity, initialYIntensity;
+		final float duration;
+		
+		public ShakingConstraints(final double xIntensity, final double yIntensity, final float duration) {
+			this.xIntensity = initialXIntensity = xIntensity;
+			this.yIntensity = initialYIntensity = yIntensity;
+			this.duration = duration;
+			
+			shaking = true;
+		}
+		
+		public ShakingConstraints() {
+			shaking = false;
+			duration = 0;
+			initialXIntensity = initialYIntensity = 0;
+		}
+		
+		@Override
+		public void update(final float delta) {
+			if (!shaking) {
+				return;
+			}
+			
+			xOffset = Math.random() * xIntensity * 2 - xIntensity;
+			yOffset = Math.random() * yIntensity * 2 - yIntensity;
+			
+			if (duration > 0) {
+				xIntensity -= initialXIntensity / duration * delta;
+				yIntensity -= initialYIntensity / duration * delta;
+			}
+		}
+		
 	}
 	
 }

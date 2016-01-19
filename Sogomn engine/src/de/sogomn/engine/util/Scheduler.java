@@ -1,6 +1,6 @@
 package de.sogomn.engine.util;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 
 import de.sogomn.engine.IUpdatable;
 
@@ -15,24 +15,18 @@ public final class Scheduler implements IUpdatable {
 	
 	private double timer;
 	
-	private LinkedHashMap<Runnable, Float> tasks;
-	private Runnable currentTask;
+	private ArrayList<Task> tasks;
+	private Task currentTask;
 	
 	/**
 	 * Constructs a new Scheduler which can execute tasks.
 	 */
 	public Scheduler() {
-		tasks = new LinkedHashMap<Runnable, Float>();
+		tasks = new ArrayList<Task>();
 	}
 	
-	private boolean isCurrentTaskDone() {
-		if (currentTask == null) {
-			return false;
-		}
-		
-		final float time = tasks.get(currentTask);
-		
-		if (timer >= time) {
+	private boolean isDone(final Task task) {
+		if (timer >= task.time) {
 			return true;
 		} else {
 			return false;
@@ -44,33 +38,39 @@ public final class Scheduler implements IUpdatable {
 	 */
 	@Override
 	public void update(final float delta) {
+		if (currentTask == null) {
+			return;
+		}
+		
 		timer += delta;
 		
-		if (isCurrentTaskDone()) {
-			currentTask.run();
+		if (isDone(currentTask)) {
+			currentTask.runnable.run();
 			removeTask(currentTask);
-			reset();
+			
+			timer = 0;
 			currentTask = getNextTask();
 		}
 	}
 	
 	/**
-	 * Resets the internal timer.
+	 * Removes all tasks from the schedule.
 	 */
-	public void reset() {
-		timer = 0;
+	public void clearTasks() {
+		tasks.clear();
+		currentTask = null;
 	}
 	
 	/**
 	 * Adds a task to the schedule.
-	 * @param task The task
+	 * @param runnable The task
 	 * @param time The time the task should be executed in seconds
 	 */
-	public void addTask(final Runnable task, final float time) {
-		tasks.put(task, time);
+	public void addTask(final Task task) {
+		tasks.add(task);
 		
 		if (currentTask == null) {
-			currentTask = getNextTask();
+			currentTask = task;
 		}
 	}
 	
@@ -78,8 +78,12 @@ public final class Scheduler implements IUpdatable {
 	 * Removes a task from the schedule.
 	 * @param task The task to be removed
 	 */
-	public void removeTask(final Runnable task) {
+	public void removeTask(final Task task) {
 		tasks.remove(task);
+		
+		if (currentTask == task) {
+			currentTask = getNextTask();
+		}
 	}
 	
 	/**
@@ -94,14 +98,52 @@ public final class Scheduler implements IUpdatable {
 	 * Returns the next task to be executed.
 	 * @return The task
 	 */
-	public Runnable getNextTask() {
-		if (tasks.isEmpty()) {
+	public Task getNextTask() {
+		if (!hasTask()) {
 			return null;
 		}
 		
-		final Runnable task = tasks.keySet().iterator().next();
+		final Task task = tasks.get(0);
 		
 		return task;
+	}
+	
+	/**
+	 * Returns whether the scheduler has a task scheduled or not.
+	 * @return True if there is a task scheduled; false otherwise.
+	 */
+	public boolean hasTask() {
+		return !tasks.isEmpty();
+	}
+	
+	/**
+	 * Can be scheduled with the help of the Scheduler class.
+	 * @author Sogomn
+	 *
+	 */
+	public static class Task {
+		
+		private Runnable runnable;
+		private float time;
+		
+		/**
+		 * Constructs a new Task object.
+		 * @param runnable The method "run" will be called when the task gets executed
+		 * @param time The time the task should be executed after
+		 */
+		public Task(final Runnable runnable, final float time) {
+			this.runnable = runnable;
+			this.time = time;
+		}
+		
+		/**
+		 * Returns the time the task should be executed after.
+		 * @return The time
+		 */
+		public final float getTime() {
+			return time;
+		}
+		
 	}
 	
 }
