@@ -63,8 +63,7 @@ public final class Scheduler implements IUpdatable {
 	
 	/**
 	 * Adds a task to the schedule.
-	 * @param runnable The task
-	 * @param time The time the task should be executed in seconds
+	 * @param task The task
 	 */
 	public void addTask(final Task task) {
 		tasks.add(task);
