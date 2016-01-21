@@ -38,7 +38,7 @@ while (screen.isOpen()) {
 }
 ```
 
-There is a more detailed example over here: [On Hastebin](http://hastebin.com/nagaxidoka.java)
+There is a more detailed example over [here](https://gist.github.com/Sogomn/b23140b7d5e939814322).
 
 ---
 
