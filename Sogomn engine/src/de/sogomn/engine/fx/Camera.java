@@ -52,7 +52,7 @@ public final class Camera implements IUpdatable {
 		shaker = new Shaker();
 	}
 	
-	private void move(final float delta) {
+	private void move(final double delta) {
 		if (smoothness == NO_SMOOTHNESS) {
 			x = targetX;
 			y = targetY;
@@ -91,7 +91,7 @@ public final class Camera implements IUpdatable {
 	 * Updates the camera.
 	 */
 	@Override
-	public void update(final float delta) {
+	public void update(final double delta) {
 		move(delta);
 		
 		shakeScheduler.update(delta);
@@ -322,7 +322,7 @@ public final class Camera implements IUpdatable {
 		}
 		
 		@Override
-		public void update(final float delta) {
+		public void update(final double delta) {
 			if (!shaking) {
 				return;
 			}

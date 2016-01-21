@@ -37,7 +37,7 @@ public final class Scheduler implements IUpdatable {
 	 * Updates the scheduler.
 	 */
 	@Override
-	public void update(final float delta) {
+	public void update(final double delta) {
 		timer += delta;
 		
 		if (currentTask != null && isDone(currentTask)) {

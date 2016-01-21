@@ -13,6 +13,6 @@ public interface IUpdatable {
 	 * Usually called to update the object
 	 * @param delta The time passed in seconds since the last call
 	 */
-	void update(final float delta);
+	void update(final double delta);
 	
 }

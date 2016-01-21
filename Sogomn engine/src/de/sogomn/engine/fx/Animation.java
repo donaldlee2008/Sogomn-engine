@@ -51,7 +51,7 @@ public final class Animation extends AbstractListenerContainer<IAnimationListene
 	 * Updates the animation.
 	 */
 	@Override
-	public void update(final float delta) {
+	public void update(final double delta) {
 		if (!isLooping()) {
 			return;
 		}

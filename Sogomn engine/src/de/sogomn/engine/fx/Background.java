@@ -78,7 +78,7 @@ public final class Background implements IUpdatable, IDrawable {
 	 * Updates the background.
 	 */
 	@Override
-	public void update(final float delta) {
+	public void update(final double delta) {
 		if (animation != null) {
 			animation.update(delta);
 			image = animation.getImage();

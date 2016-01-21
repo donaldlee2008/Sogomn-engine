@@ -14,7 +14,7 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	private long lastTime;
 	private long ticks;
 	
-	private static final float NANO_SECONDS_PER_SECOND = 1000000000f;
+	private static final double NANO_SECONDS_PER_SECOND = 1000000000f;
 	
 	/**
 	 * Constructs a new Clock object.
@@ -29,7 +29,7 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	 */
 	public void update() {
 		final long now = System.nanoTime();
-		final float elapsedInSeconds = (now - lastTime) / NANO_SECONDS_PER_SECOND;
+		final double elapsedInSeconds = (now - lastTime) / NANO_SECONDS_PER_SECOND;
 		
 		notifyListeners(updatable -> updatable.update(elapsedInSeconds));
 		
@@ -55,11 +55,11 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	}
 	
 	/**
-	 * Returns the elapsed time since the clock was started in seconds.
-	 * @return The elapsed time
+	 * Returns the elapsed time since the clock was started.
+	 * @return The elapsed time in seconds
 	 */
-	public float elapsed() {
-		final float elapsed = (System.nanoTime() - initialTime) / NANO_SECONDS_PER_SECOND;
+	public double elapsed() {
+		final double elapsed = (System.nanoTime() - initialTime) / NANO_SECONDS_PER_SECOND;
 		
 		return elapsed;
 	}

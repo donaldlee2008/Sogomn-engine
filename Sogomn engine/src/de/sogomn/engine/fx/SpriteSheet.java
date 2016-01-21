@@ -196,7 +196,14 @@ public final class SpriteSheet {
 	 */
 	public enum Orientation {
 		
+		/**
+		 * Left-to-right orientation.
+		 */
 		LEFT_TO_RIGHT,
+		
+		/**
+		 * Top-to-bottom orientation.
+		 */
 		TOP_TO_BOTTOM;
 		
 	}
