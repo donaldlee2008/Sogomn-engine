@@ -38,18 +38,11 @@ public final class Scheduler implements IUpdatable {
 	 */
 	@Override
 	public void update(final float delta) {
-		if (currentTask == null) {
-			return;
-		}
-		
 		timer += delta;
 		
-		if (isDone(currentTask)) {
+		if (currentTask != null && isDone(currentTask)) {
 			currentTask.runnable.run();
 			removeTask(currentTask);
-			
-			timer = 0;
-			currentTask = getNextTask();
 		}
 	}
 	
@@ -57,8 +50,8 @@ public final class Scheduler implements IUpdatable {
 	 * Removes all tasks from the schedule.
 	 */
 	public void clearTasks() {
-		tasks.clear();
 		currentTask = null;
+		tasks.clear();
 	}
 	
 	/**
@@ -69,6 +62,7 @@ public final class Scheduler implements IUpdatable {
 		tasks.add(task);
 		
 		if (currentTask == null) {
+			timer = 0;
 			currentTask = task;
 		}
 	}
@@ -81,6 +75,7 @@ public final class Scheduler implements IUpdatable {
 		tasks.remove(task);
 		
 		if (currentTask == task) {
+			timer = 0;
 			currentTask = getNextTask();
 		}
 	}

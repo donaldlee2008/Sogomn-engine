@@ -24,7 +24,7 @@ public final class Camera implements IUpdatable {
 	private float smoothness;
 	
 	private Scheduler shakeScheduler;
-	private ShakingConstraints shakingConstraints;
+	private Shaker shaker;
 	
 	/**
 	 * If passed to the method "setSmoothness" the camera position will automatically be the target position.
@@ -49,7 +49,7 @@ public final class Camera implements IUpdatable {
 		maxX = maxY = NO_MAXIMUM;
 		smoothness = NO_SMOOTHNESS;
 		shakeScheduler = new Scheduler();
-		shakingConstraints = new ShakingConstraints();
+		shaker = new Shaker();
 	}
 	
 	private void move(final float delta) {
@@ -70,15 +70,15 @@ public final class Camera implements IUpdatable {
 		y = Math.max(Math.min(y, maxY), minY);
 		
 		if (getX() < minX) {
-			shakingConstraints.xOffset = x - minX;
+			shaker.xOffset = x - minX;
 		} else if (getX() > maxX) {
-			shakingConstraints.xOffset = x - maxX;
+			shaker.xOffset = x - maxX;
 		}
 		
 		if (getY() < minY) {
-			shakingConstraints.yOffset = y - minY;
+			shaker.yOffset = y - minY;
 		} else if (getY() > maxY) {
-			shakingConstraints.yOffset = y - maxY;
+			shaker.yOffset = y - maxY;
 		}
 	}
 	
@@ -95,7 +95,7 @@ public final class Camera implements IUpdatable {
 		move(delta);
 		
 		shakeScheduler.update(delta);
-		shakingConstraints.update(delta);
+		shaker.update(delta);
 		
 		clampPosition();
 	}
@@ -131,7 +131,7 @@ public final class Camera implements IUpdatable {
 	 */
 	public void resetShake() {
 		shakeScheduler.clearTasks();
-		shakingConstraints = new ShakingConstraints();
+		shaker.stop();
 	}
 	
 	/**
@@ -147,8 +147,7 @@ public final class Camera implements IUpdatable {
 		
 		resetShake();
 		shakeScheduler.addTask(task);
-		
-		shakingConstraints = new ShakingConstraints(xIntensity, yIntensity, duration);
+		shaker.shake(xIntensity, yIntensity, duration);
 	}
 	
 	/**
@@ -234,7 +233,7 @@ public final class Camera implements IUpdatable {
 	 * @return The coordinate
 	 */
 	public double getX() {
-		return x + shakingConstraints.xOffset;
+		return x + shaker.xOffset;
 	}
 	
 	/**
@@ -242,7 +241,7 @@ public final class Camera implements IUpdatable {
 	 * @return The coordinate
 	 */
 	public double getY() {
-		return y + shakingConstraints.yOffset;
+		return y + shaker.yOffset;
 	}
 	
 	/**
@@ -309,27 +308,17 @@ public final class Camera implements IUpdatable {
 		return maxY;
 	}
 	
-	private class ShakingConstraints implements IUpdatable {
+	private class Shaker implements IUpdatable {
 		
+		private boolean shaking;
 		private double xOffset, yOffset;
 		private double xIntensity, yIntensity;
 		
-		final boolean shaking;
-		final double initialXIntensity, initialYIntensity;
-		final float duration;
+		private double initialXIntensity, initialYIntensity;
+		private float duration;
 		
-		public ShakingConstraints(final double xIntensity, final double yIntensity, final float duration) {
-			this.xIntensity = initialXIntensity = xIntensity;
-			this.yIntensity = initialYIntensity = yIntensity;
-			this.duration = duration;
-			
-			shaking = true;
-		}
-		
-		public ShakingConstraints() {
-			shaking = false;
-			duration = 0;
-			initialXIntensity = initialYIntensity = 0;
+		public Shaker() {
+			//...
 		}
 		
 		@Override
@@ -345,6 +334,18 @@ public final class Camera implements IUpdatable {
 				xIntensity -= initialXIntensity / duration * delta;
 				yIntensity -= initialYIntensity / duration * delta;
 			}
+		}
+		
+		public void shake(final double xIntensity, final double yIntensity, final float duration) {
+			this.xIntensity = initialXIntensity = xIntensity;
+			this.yIntensity = initialYIntensity = yIntensity;
+			this.duration = duration;
+			
+			shaking = true;
+		}
+		
+		public void stop() {
+			shaking = false;
 		}
 		
 	}
