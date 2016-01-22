@@ -89,7 +89,7 @@ public final class Scheduler implements IUpdatable {
 	 * @author Sogomn
 	 *
 	 */
-	public static final class Task {
+	public static final class Task implements IUpdatable {
 		
 		private Runnable runnable;
 		private double timer;
@@ -97,7 +97,7 @@ public final class Scheduler implements IUpdatable {
 		
 		/**
 		 * Constructs a new Task object.
-		 * @param executable The method "execute" will be called when the task gets executed
+		 * @param runnable The method "execute" will be called when the task gets executed
 		 * @param time The time the task should be executed after
 		 */
 		public Task(final Runnable runnable, final float time) {
@@ -106,8 +106,9 @@ public final class Scheduler implements IUpdatable {
 		}
 		
 		/**
-		 * Updates the task. Automatically called by the Scheduler class.
+		 * Updates the task.
 		 */
+		@Override
 		public void update(final double delta) {
 			timer += delta;
 		}
