@@ -1,27 +1,24 @@
 package de.sogomn.engine.fx;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
+import javax.sound.sampled.FloatControl.Type;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.sogomn.engine.util.AbstractListenerContainer;
 
 
 /**
- * Sound class to load and play sounds. Use the static methods to create new objects.
- * Might be a little laggy.
+ * This is a class to load and play sounds. Use the static methods to create new objects.
+ * If looping a sound too often in a tiny interval it might throw a NullPointerException. Ignore it. It will play anyway.
  * @author Sogomn
  *
  */
@@ -29,117 +26,88 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	
 	private byte[] data;
 	private AudioFormat format;
+	private SourceDataLine line;
+	private boolean playing;
 	
 	private float gain;
-	
-	private HashMap<Long, Clip> clips;
-	private long currentId;
-	
-	private static final int BUFFER_SIZE = 24;
-	
-	/**
-	 * Passed to loop infinitely.
-	 */
-	public static final int INFINITE = Clip.LOOP_CONTINUOUSLY + 1;
-	
-	/**
-	 * Returned instead of an id if an error occurs.
-	 */
-	public static final int ERROR = -1;
 	
 	private Sound(final byte[] data, final AudioFormat format) {
 		this.data = data;
 		this.format = format;
-		
-		clips = new HashMap<Long, Clip>();
 	}
 	
-	private Clip createClip(final long id) {
+	private void writeData() {
 		try {
-			final Clip clip = AudioSystem.getClip();
-			final LineListener lineListener = l -> {
-				final LineEvent.Type type = l.getType();
-				
-				if (type == LineEvent.Type.STOP) {
-					stop(id);
-					notifyListeners(listener -> listener.stopped(this, id));
-				}
-			};
+			playing = true;
+			line = AudioSystem.getSourceDataLine(format);
 			
-			clip.open(format, data, 0, data.length);
-			clip.addLineListener(lineListener);
+			line.open();
 			
-			clips.put(id, clip);
+			final FloatControl gainControl = (FloatControl)line.getControl(Type.MASTER_GAIN);
+			final float actualGain = Math.max(gainControl.getMinimum(), Math.min(gainControl.getMaximum(), gain));
 			
-			return clip;
+			gainControl.setValue(actualGain);
+			
+			line.start();
+			line.write(data, 0, data.length);
+			line.drain();
 		} catch (final LineUnavailableException ex) {
 			ex.printStackTrace();
+		} finally {
+			stop();
+		}
+	}
+	
+	/**
+	 * Plays the sound. This method is not blocking.
+	 */
+	public synchronized void play() {
+		final Thread thread = new Thread(() -> {
+			writeData();
 			
-			return null;
-		}
+			notifyListeners(listener -> listener.stopped(this));
+		});
+		
+		thread.start();
 	}
 	
 	/**
-	 * Plays the sound a given amount of times.
-	 * This method is non-blocking.
-	 * @param loops The amount of times the sound should be played
-	 * @return The clip id or ERROR (-1) in case of faliure
+	 * Loops the sound the given amount of times.
+	 * @param loops The loop count
 	 */
-	public long play(final int loops) {
-		final long id = currentId++;
-		final Clip clip = createClip(id);
+	public synchronized void play(final int loops) {
+		final Thread thread = new Thread(() -> {
+			for (int i = 0; i < loops; i++) {
+				writeData();
+				
+				notifyListeners(listener -> listener.looped(this));
+			}
+			
+			notifyListeners(listener -> listener.stopped(this));
+		});
 		
-		if (clip == null) {
-			return ERROR;
+		thread.start();
+	}
+	
+	/**
+	 * Stops the sound.
+	 */
+	public synchronized void stop() {
+		if (line == null) {
+			return;
 		}
 		
-		final FloatControl control = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
+		line.stop();
+		line.flush();
+		line.close();
 		
-		gain = Math.min(Math.max(gain, control.getMinimum()), control.getMaximum());
-		
-		control.setValue(gain);
-		clip.loop(loops - 1);
-		
-		return id;
+		line = null;
+		playing = false;
 	}
 	
 	/**
-	 * Plays the sound once.
-	 * Same as passing "1" to the method "play".
-	 * @return The clip id or ERROR (-1) in case of faliure
-	 */
-	public long play() {
-		return play(1);
-	}
-	
-	/**
-	 * Stops the clip with the given id.
-	 * @param id The sound id
-	 */
-	public void stop(final long id) {
-		final Clip clip = clips.get(id);
-		
-		if (clip != null) {
-			clip.stop();
-			clip.flush();
-			clip.close();
-			clips.remove(id);
-		}
-	}
-	
-	/**
-	 * Stops all clips.
-	 */
-	public void stop() {
-		for (int i = 0; i < currentId; i++) {
-			stop(i);
-		}
-	}
-	
-	/**
-	 * Sets the gain for the sound.
-	 * The value gets clamped between the maximum and minumum gain which differs.
-	 * Negative values are allowed.
+	 * Sets the gain for the sound. Negative values mean less gain.
+	 * Zero is the default.
 	 * @param gain The new gain value
 	 */
 	public void setGain(final float gain) {
@@ -147,11 +115,19 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	}
 	
 	/**
-	 * Returns whether or not this sound is currently being played.
+	 * Returns whether the sound is playing or not.
 	 * @return The state
 	 */
 	public boolean isPlaying() {
-		return !clips.isEmpty();
+		return playing;
+	}
+	
+	/**
+	 * Returns the current gain.
+	 * @return The gain
+	 */
+	public float getGain() {
+		return gain;
 	}
 	
 	/**
@@ -163,15 +139,12 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 		try {
 			final AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(Sound.class.getResourceAsStream(path)));
 			final AudioFormat format = in.getFormat();
-			final ByteArrayOutputStream out = new ByteArrayOutputStream();
-			final byte[] buffer = new byte[BUFFER_SIZE];
+			final int bufferSize = in.available();
+			final byte[] buffer = new byte[bufferSize];
 			
-			while (in.read(buffer, 0, BUFFER_SIZE) != -1) {
-				out.write(buffer, 0, BUFFER_SIZE);
-			}
+			in.read(buffer, 0, bufferSize);
 			
-			final byte[] data = out.toByteArray();
-			final Sound sound = new Sound(data, format);
+			final Sound sound = new Sound(buffer, format);
 			
 			return sound;
 		} catch (final IOException | UnsupportedAudioFileException ex) {
@@ -189,13 +162,13 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	public static Sound loadExternalSound(final File file) {
 		try {
 			final AudioInputStream in = AudioSystem.getAudioInputStream(file);
-			final int length = (int)file.length();
-			final byte[] data = new byte[length];
+			final int bufferSize = in.available();
+			final byte[] buffer = new byte[bufferSize];
 			final AudioFormat format = in.getFormat();
 			
-			in.read(data, 0, length);
+			in.read(buffer, 0, bufferSize);
 			
-			final Sound sound = new Sound(data, format);
+			final Sound sound = new Sound(buffer, format);
 			
 			return sound;
 		} catch (final IOException | UnsupportedAudioFileException ex) {

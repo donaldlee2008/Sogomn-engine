@@ -5,7 +5,6 @@ package de.sogomn.engine.fx;
  * @author Sogomn
  *
  */
-@FunctionalInterface
 public interface IAnimationListener {
 	
 	/**

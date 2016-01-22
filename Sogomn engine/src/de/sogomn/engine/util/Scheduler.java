@@ -27,61 +27,51 @@ public final class Scheduler implements IUpdatable {
 	 * Updates the scheduler.
 	 */
 	@Override
-	public void update(final double delta) {
-		synchronized (tasks) {
-			final Iterator<Task> iterator = tasks.iterator();
+	public synchronized void update(final double delta) {
+		final Iterator<Task> iterator = tasks.iterator();
+		
+		while (iterator.hasNext()) {
+			final Task task = iterator.next();
 			
-			while (iterator.hasNext()) {
-				final Task task = iterator.next();
+			if (task.isDone()) {
+				iterator.remove();
 				
-				if (task.isDone()) {
-					iterator.remove();
-					
-					task.execute();
-				}
-				
-				task.update(delta);
+				task.execute();
 			}
+			
+			task.update(delta);
 		}
 	}
 	
 	/**
 	 * Removes all tasks from the schedule.
 	 */
-	public void clearTasks() {
-		synchronized (tasks) {
-			tasks.clear();
-		}
+	public synchronized void clearTasks() {
+		tasks.clear();
 	}
 	
 	/**
 	 * Adds a task to the schedule.
 	 * @param task The task
 	 */
-	public void addTask(final Task task) {
-		synchronized (tasks) {
-			tasks.add(task);
-		}
+	public synchronized void addTask(final Task task) {
+		tasks.add(task);
 	}
 	
 	/**
 	 * Removes a task from the schedule.
 	 * @param task The task to be removed
 	 */
-	public void removeTask(final Task task) {
-		synchronized (tasks) {
-			tasks.remove(task);
-		}
+	public synchronized void removeTask(final Task task) {
+		tasks.remove(task);
 	}
 	
 	/**
 	 * Returns whether the scheduler has a task scheduled or not.
 	 * @return True if there is a task scheduled; false otherwise.
 	 */
-	public boolean hasTask() {
-		synchronized (tasks) {
-			return !tasks.isEmpty();
-		}
+	public synchronized boolean hasTask() {
+		return !tasks.isEmpty();
 	}
 	
 	/**
