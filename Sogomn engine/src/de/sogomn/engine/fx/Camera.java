@@ -308,7 +308,7 @@ public final class Camera implements IUpdatable {
 		return maxY;
 	}
 	
-	private class Shaker implements IUpdatable {
+	private final class Shaker implements IUpdatable {
 		
 		private boolean shaking;
 		private double xOffset, yOffset;

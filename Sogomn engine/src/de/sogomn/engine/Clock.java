@@ -10,8 +10,7 @@ import de.sogomn.engine.util.AbstractListenerContainer;
  */
 public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	
-	private long initialTime;
-	private long lastTime;
+	private long initialTime, lastTime;
 	private long ticks;
 	
 	private static final double NANO_SECONDS_PER_SECOND = 1000000000f;
@@ -24,18 +23,19 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	}
 	
 	/**
-	 * Updates the clock and notifies all listening IUpdatable objects.
-	 * The passed value "delta" is the elapsed time in seconds.
+	 * Updates the clock and notifies all listeners.
+	 * @return The elapsed time since the last update in seconds
 	 */
-	public void update() {
+	public double update() {
 		final long now = System.nanoTime();
-		final double elapsedInSeconds = (now - lastTime) / NANO_SECONDS_PER_SECOND;
+		final double elapsed = (System.nanoTime() - lastTime) / NANO_SECONDS_PER_SECOND;
 		
-		notifyListeners(updatable -> updatable.update(elapsedInSeconds));
+		notifyListeners(updatable -> updatable.update(elapsed));
 		
 		lastTime = now;
-		
 		ticks++;
+		
+		return elapsed;
 	}
 	
 	/**
@@ -60,6 +60,16 @@ public final class Clock extends AbstractListenerContainer<IUpdatable> {
 	 */
 	public double elapsed() {
 		final double elapsed = (System.nanoTime() - initialTime) / NANO_SECONDS_PER_SECOND;
+		
+		return elapsed;
+	}
+	
+	/**
+	 * Returns the elapsed time since the last update.
+	 * @return The elapsed time in seconds
+	 */
+	public double elapsedSinceLastUpdate() {
+		final double elapsed = (System.nanoTime() - lastTime) / NANO_SECONDS_PER_SECOND;
 		
 		return elapsed;
 	}
