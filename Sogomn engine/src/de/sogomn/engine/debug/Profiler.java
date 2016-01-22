@@ -7,6 +7,7 @@ import de.sogomn.engine.Clock;
 
 /**
  * The Profiler class is useful for debugging. It measures how much time one or more operations take.
+ * The total time may differ from the sum of all section times a little bit due to minor calculations.
  * @author Sogomn
  *
  */
@@ -73,12 +74,12 @@ public final class Profiler {
 		}
 		
 		newSection();
+		printSections();
 		
 		profiling = false;
 		lastName = null;
 		
 		clock.reset();
-		printSections();
 		sections.clear();
 	}
 	
