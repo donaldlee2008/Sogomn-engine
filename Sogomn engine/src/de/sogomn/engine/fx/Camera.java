@@ -17,6 +17,7 @@ public final class Camera implements IUpdatable {
 	
 	private double x, y;
 	private double targetX, targetY;
+	private float smoothness;
 	
 	private double minX, minY;
 	private double maxX, maxY;
@@ -24,7 +25,8 @@ public final class Camera implements IUpdatable {
 	private double rotation;
 	private double pivotX, pivotY;
 	
-	private float smoothness;
+	private double scale;
+	private double centerX, centerY;
 	
 	private double xOffset, yOffset;
 	private double rotationOffset;
@@ -50,9 +52,9 @@ public final class Camera implements IUpdatable {
 	 * Constructs a new Camera object with the default smoothness of 0 and no minimum or maximum values.
 	 */
 	public Camera() {
+		smoothness = NO_SMOOTHNESS;
 		minX = minY = NO_MINIMUM;
 		maxX = maxY = NO_MAXIMUM;
-		smoothness = NO_SMOOTHNESS;
 		shakeScheduler = new Scheduler();
 		shaker = new Shaker();
 	}
@@ -74,15 +76,18 @@ public final class Camera implements IUpdatable {
 		x = Math.max(Math.min(x, maxX), minX);
 		y = Math.max(Math.min(y, maxY), minY);
 		
-		if (getX() < minX) {
+		final double actualX = getX();
+		final double actualY = getY();
+		
+		if (actualX < minX) {
 			xOffset = x - minX;
-		} else if (getX() > maxX) {
+		} else if (actualX > maxX) {
 			xOffset = x - maxX;
 		}
 		
-		if (getY() < minY) {
+		if (actualY < minY) {
 			yOffset = y - minY;
-		} else if (getY() > maxY) {
+		} else if (actualY > maxY) {
 			yOffset = y - maxY;
 		}
 	}
@@ -110,8 +115,21 @@ public final class Camera implements IUpdatable {
 	 * @param g The Graphics2D object
 	 */
 	public void apply(final Graphics2D g) {
-		g.rotate(getRotation(), pivotX, pivotY);
-		g.translate(-getX(), -getY());
+		final double actualX = getX();
+		final double actualY = getY();
+		final double actualRotation = getRotation();
+		
+		if (actualRotation != 0) {
+			g.rotate(actualRotation, pivotX, pivotY);
+		}
+		
+		g.translate(-actualX, -actualY);
+		
+		if (scale != 0) {
+			g.translate(centerX, centerY);
+			g.scale(scale, scale);
+			g.translate(-centerX, -centerY);
+		}
 	}
 	
 	/**
@@ -120,8 +138,23 @@ public final class Camera implements IUpdatable {
 	 * @param g The Graphics2D object
 	 */
 	public void revert(final Graphics2D g) {
-		g.rotate(-getRotation(), pivotX, pivotY);
-		g.translate(getX(), getY());
+		final double actualX = getX();
+		final double actualY = getY();
+		final double actualRotation = getRotation();
+		
+		if (scale != 0) {
+			final double reverseScale = 1 / scale;
+			
+			g.translate(centerX, centerY);
+			g.scale(reverseScale, reverseScale);
+			g.translate(-centerX, -centerY);
+		}
+		
+		g.translate(actualX, actualY);
+		
+		if (actualRotation != 0) {
+			g.rotate(-actualRotation, pivotX, pivotY);
+		}
 	}
 	
 	/**
@@ -246,7 +279,7 @@ public final class Camera implements IUpdatable {
 	 * @param degrees The rotation in degrees
 	 */
 	public void setRotation(final double degrees) {
-		rotation = (double)Math.toRadians(degrees);
+		rotation = Math.toRadians(degrees);
 	}
 	
 	/**
@@ -261,6 +294,25 @@ public final class Camera implements IUpdatable {
 	}
 	
 	/**
+	 * Sets the scale.
+	 * One is default.
+	 * @param scale The scale
+	 */
+	public void setScale(final double scale) {
+		this.scale = scale;
+	}
+	
+	/**
+	 * Sets the scaling center point.
+	 * @param centerX The x coordinate
+	 * @param centerY The y coordinate
+	 */
+	public void setScaleCenterPoint(final double centerX, final double centerY) {
+		this.centerX = centerX;
+		this.centerY = centerY;
+	}
+	
+	/**
 	 * Sets the smoothness for the camera.
 	 * Good values are between 0 an 1.
 	 * @param smoothness The smoothness
@@ -271,6 +323,7 @@ public final class Camera implements IUpdatable {
 	
 	/**
 	 * Returns the x coordinate of the camera.
+	 * Ignores scale.
 	 * @return The coordinate
 	 */
 	public double getX() {
@@ -279,26 +332,11 @@ public final class Camera implements IUpdatable {
 	
 	/**
 	 * Returns the y coordinate of the camera.
+	 * Ignores scale.
 	 * @return The coordinate
 	 */
 	public double getY() {
 		return y + yOffset;
-	}
-	
-	/**
-	 * Returns the x coordinate of the camera without camera shake applied.
-	 * @return The logical x coordinate
-	 */
-	public double getLogicalX() {
-		return x;
-	}
-	
-	/**
-	 * Returns the y coordinate of the camera without camera shake applied.
-	 * @return The logical y coordinate
-	 */
-	public double getLogicalY() {
-		return y;
 	}
 	
 	/**
@@ -315,6 +353,14 @@ public final class Camera implements IUpdatable {
 	 */
 	public double getTargetY() {
 		return targetY;
+	}
+	
+	/**
+	 * Returns the scrolling smoothness.
+	 * @return The smoothness
+	 */
+	public float getSmoothness() {
+		return smoothness;
 	}
 	
 	/**
@@ -359,13 +405,17 @@ public final class Camera implements IUpdatable {
 	}
 	
 	/**
-	 * Returns the scrolling smoothness.
-	 * @return The smoothness
+	 * Returns the scale.
+	 * @return The scale
 	 */
-	public float getSmoothness() {
-		return smoothness;
+	public double getScale() {
+		return scale;
 	}
 	
+	/**
+	 * Returns whether the camera is shaking or not.
+	 * @return The state
+	 */
 	public boolean isShaking() {
 		return shaker.shaking;
 	}

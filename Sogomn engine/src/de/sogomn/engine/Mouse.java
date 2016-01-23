@@ -24,13 +24,13 @@ final class Mouse extends AbstractListenerContainer<IMouseListener> implements M
 	}
 	
 	private int getRelativeX(final int x) {
-		final int relativeX = (int)((x / scaleX) - (offsetX / scaleX));
+		final int relativeX = (int)(x / scaleX - offsetX / scaleX);
 		
 		return relativeX;
 	}
 	
 	private int getRelativeY(final int y) {
-		final int relativeY = (int)((y / scaleY) - (offsetY / scaleY));
+		final int relativeY = (int)(y / scaleY - offsetY / scaleY);
 		
 		return relativeY;
 	}
@@ -97,11 +97,6 @@ final class Mouse extends AbstractListenerContainer<IMouseListener> implements M
 	@Override
 	public void mouseExited(final MouseEvent m) {
 		//...
-	}
-	
-	public void reset() {
-		scaleX = scaleY = 0;
-		offsetX = offsetY = 0;
 	}
 	
 	public void setScale(final float scaleX, final float scaleY) {
