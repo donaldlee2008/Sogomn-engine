@@ -21,8 +21,13 @@ public final class Camera implements IUpdatable {
 	private double minX, minY;
 	private double maxX, maxY;
 	
+	private double rotation;
+	private double pivotX, pivotY;
+	
 	private float smoothness;
 	
+	private double xOffset, yOffset;
+	private double rotationOffset;
 	private Scheduler shakeScheduler;
 	private Shaker shaker;
 	
@@ -70,15 +75,15 @@ public final class Camera implements IUpdatable {
 		y = Math.max(Math.min(y, maxY), minY);
 		
 		if (getX() < minX) {
-			shaker.xOffset = x - minX;
+			xOffset = x - minX;
 		} else if (getX() > maxX) {
-			shaker.xOffset = x - maxX;
+			xOffset = x - maxX;
 		}
 		
 		if (getY() < minY) {
-			shaker.yOffset = y - minY;
+			yOffset = y - minY;
 		} else if (getY() > maxY) {
-			shaker.yOffset = y - maxY;
+			yOffset = y - maxY;
 		}
 	}
 	
@@ -105,6 +110,7 @@ public final class Camera implements IUpdatable {
 	 * @param g The Graphics2D object
 	 */
 	public void apply(final Graphics2D g) {
+		g.rotate(getRotation(), pivotX, pivotY);
 		g.translate(-getX(), -getY());
 	}
 	
@@ -114,6 +120,7 @@ public final class Camera implements IUpdatable {
 	 * @param g The Graphics2D object
 	 */
 	public void revert(final Graphics2D g) {
+		g.rotate(-getRotation(), pivotX, pivotY);
 		g.translate(getX(), getY());
 	}
 	
@@ -124,30 +131,45 @@ public final class Camera implements IUpdatable {
 	public void reset() {
 		x = y = 0;
 		targetX = targetY = 0;
+		
+		resetShake();
+		resetRotation();
 	}
 	
 	/**
 	 * Stops and resets the camera shake.
 	 */
 	public void resetShake() {
+		xOffset = yOffset = 0;
+		rotationOffset = 0;
+		
 		shakeScheduler.clearTasks();
 		shaker.stop();
+	}
+	
+	/**
+	 * Resets the rotation and the rotation pivot.
+	 */
+	public void resetRotation() {
+		rotation = 0;
+		pivotX = pivotY = 0;
 	}
 	
 	/**
 	 * Applies camera shake for the given duration with the given intensity.
 	 * @param xIntensity The intensity on the x-axis
 	 * @param yIntensity The intensity on the y-axis
+	 * @param rotationIntensity The rotation shake intensity
 	 * @param duration The duration in seconds
 	 */
-	public void shake(final double xIntensity, final double yIntensity, final float duration) {
+	public void shake(final double xIntensity, final double yIntensity, final double rotationIntensity, final float duration) {
 		final Task task = new Task(() -> {
 			resetShake();
 		}, duration);
 		
 		resetShake();
 		shakeScheduler.addTask(task);
-		shaker.shake(xIntensity, yIntensity, duration);
+		shaker.shake(xIntensity, yIntensity, Math.toRadians(rotationIntensity), duration);
 	}
 	
 	/**
@@ -220,6 +242,25 @@ public final class Camera implements IUpdatable {
 	}
 	
 	/**
+	 * Sets the rotation of the camera.
+	 * @param degrees The rotation in degrees
+	 */
+	public void setRotation(final double degrees) {
+		rotation = (double)Math.toRadians(degrees);
+	}
+	
+	/**
+	 * Sets the pivot for the camera rotation.
+	 * The default is (0|0)
+	 * @param pivotX The x coordinate
+	 * @param pivotY The y coordinate
+	 */
+	public void setRotationPivot(final double pivotX, final double pivotY) {
+		this.pivotX = pivotX;
+		this.pivotY = pivotY;
+	}
+	
+	/**
 	 * Sets the smoothness for the camera.
 	 * Good values are between 0 an 1.
 	 * @param smoothness The smoothness
@@ -233,7 +274,7 @@ public final class Camera implements IUpdatable {
 	 * @return The coordinate
 	 */
 	public double getX() {
-		return x + shaker.xOffset;
+		return x + xOffset;
 	}
 	
 	/**
@@ -241,7 +282,7 @@ public final class Camera implements IUpdatable {
 	 * @return The coordinate
 	 */
 	public double getY() {
-		return y + shaker.yOffset;
+		return y + yOffset;
 	}
 	
 	/**
@@ -308,13 +349,35 @@ public final class Camera implements IUpdatable {
 		return maxY;
 	}
 	
+	/**
+	 * Returns the camera rotation.
+	 * Includes the rotation shake.
+	 * @return The rotation
+	 */
+	public double getRotation() {
+		return rotation + rotationOffset;
+	}
+	
+	/**
+	 * Returns the scrolling smoothness.
+	 * @return The smoothness
+	 */
+	public float getSmoothness() {
+		return smoothness;
+	}
+	
+	public boolean isShaking() {
+		return shaker.shaking;
+	}
+	
 	private final class Shaker implements IUpdatable {
 		
 		private boolean shaking;
-		private double xOffset, yOffset;
 		private double xIntensity, yIntensity;
+		private double rotationIntensity;
 		
 		private double initialXIntensity, initialYIntensity;
+		private double initialRotationIntensity;
 		private float duration;
 		
 		public Shaker() {
@@ -329,16 +392,19 @@ public final class Camera implements IUpdatable {
 			
 			xOffset = Math.random() * xIntensity * 2 - xIntensity;
 			yOffset = Math.random() * yIntensity * 2 - yIntensity;
+			rotationOffset = Math.random() * rotationIntensity * 2 - rotationIntensity;
 			
 			if (duration > 0) {
 				xIntensity -= initialXIntensity / duration * delta;
 				yIntensity -= initialYIntensity / duration * delta;
+				rotationIntensity -= initialRotationIntensity / duration * delta;
 			}
 		}
 		
-		public void shake(final double xIntensity, final double yIntensity, final float duration) {
+		public void shake(final double xIntensity, final double yIntensity, final double rotationIntensity, final float duration) {
 			this.xIntensity = initialXIntensity = xIntensity;
 			this.yIntensity = initialYIntensity = yIntensity;
+			this.rotationIntensity = initialRotationIntensity = rotationIntensity;
 			this.duration = duration;
 			
 			shaking = true;
