@@ -52,7 +52,6 @@ public final class Camera implements IUpdatable {
 	 * Constructs a new Camera object with the default smoothness of 0 and no minimum or maximum values.
 	 */
 	public Camera() {
-		smoothness = NO_SMOOTHNESS;
 		minX = minY = NO_MINIMUM;
 		maxX = maxY = NO_MAXIMUM;
 		shakeScheduler = new Scheduler();
@@ -111,7 +110,7 @@ public final class Camera implements IUpdatable {
 	}
 	
 	/**
-	 * Applies the camera translation to the given Graphics2D object.
+	 * Applies the camera transform to the given Graphics2D object.
 	 * @param g The Graphics2D object
 	 */
 	public void apply(final Graphics2D g) {
@@ -133,8 +132,8 @@ public final class Camera implements IUpdatable {
 	}
 	
 	/**
-	 * Reverts the camera translation of the given Graphics2D object.
-	 * This should only be called if the translation was applied before.
+	 * Reverts the camera tramsform of the given Graphics2D object.
+	 * This should only be called after the method "apply" has been called.
 	 * @param g The Graphics2D object
 	 */
 	public void revert(final Graphics2D g) {
@@ -167,6 +166,7 @@ public final class Camera implements IUpdatable {
 		
 		resetShake();
 		resetRotation();
+		resetScaling();
 	}
 	
 	/**
@@ -186,6 +186,14 @@ public final class Camera implements IUpdatable {
 	public void resetRotation() {
 		rotation = 0;
 		pivotX = pivotY = 0;
+	}
+	
+	/**
+	 * Resets the scaling and the scale center point.
+	 */
+	public void resetScaling() {
+		scale = 0;
+		centerX = centerY = 0;
 	}
 	
 	/**
