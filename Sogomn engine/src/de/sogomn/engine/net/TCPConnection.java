@@ -89,7 +89,7 @@ public class TCPConnection implements IClosable {
 		try {
 			final int length = data.length;
 			
-			out.write(length);
+			out.writeInt(length);
 			out.write(data);
 			out.flush();
 		} catch (final IOException | NullPointerException ex) {

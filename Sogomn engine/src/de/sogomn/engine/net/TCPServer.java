@@ -53,16 +53,15 @@ public class TCPServer implements IClosable {
 	}
 	
 	/**
-	 * Accepts a connection.
-	 * Will block the thread until a connection has been accepted or an exception has been thrown.
+	 * Accepts the next incoming connection request.
+	 * This will block the thread until a connection has been accepted or an exception has been thrown.
 	 * @return The connection
 	 */
-	public TCPConnection acceptConnection() {
+	public Socket acceptConnection() {
 		try {
 			final Socket socket = server.accept();
-			final TCPConnection connection = new TCPConnection(socket);
 			
-			return connection;
+			return socket;
 		} catch (final IOException | NullPointerException ex) {
 			handleException(ex);
 			

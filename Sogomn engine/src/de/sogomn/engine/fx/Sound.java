@@ -41,7 +41,11 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 			playing = true;
 			line = AudioSystem.getSourceDataLine(format);
 			
-			line.open();
+			if (line == null) {
+				return;
+			} else {
+				line.open();
+			}
 			
 			final FloatControl gainControl = (FloatControl)line.getControl(Type.MASTER_GAIN);
 			final float actualGain = Math.max(gainControl.getMinimum(), Math.min(gainControl.getMaximum(), gain));
@@ -53,8 +57,6 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 			line.drain();
 		} catch (final LineUnavailableException ex) {
 			ex.printStackTrace();
-		} finally {
-			stop();
 		}
 	}
 	
@@ -80,6 +82,10 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 			for (int i = 0; i < loops; i++) {
 				writeData();
 				
+				if (!playing) {
+					return;
+				}
+				
 				notifyListeners(listener -> listener.looped(this));
 			}
 			
@@ -97,12 +103,13 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 			return;
 		}
 		
+		playing = false;
+		
 		line.stop();
 		line.flush();
 		line.close();
 		
 		line = null;
-		playing = false;
 	}
 	
 	/**
