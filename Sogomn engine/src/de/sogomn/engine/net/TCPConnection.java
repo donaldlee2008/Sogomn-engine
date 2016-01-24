@@ -7,7 +7,7 @@ import java.net.Socket;
 
 /**
  * TCPConnection is for communication between a client and a server.
- * Should not be used with other protocols since the first four bytes of every buffer will be lost then.
+ * Uses a custom protocol where the first four bytes determine the length of the incoming data.
  * @author Sogomn
  *
  */

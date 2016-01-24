@@ -55,7 +55,7 @@ public class TCPServer implements IClosable {
 	/**
 	 * Accepts the next incoming connection request.
 	 * This will block the thread until a connection has been accepted or an exception has been thrown.
-	 * @return The connection
+	 * @return The connection or null in case of failure
 	 */
 	public Socket acceptConnection() {
 		try {
