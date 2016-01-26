@@ -76,6 +76,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			@Override
 			public void componentResized(final ComponentEvent c) {
 				calculateViewport();
+				redraw();
 				canvas.requestFocus();
 			}
 		};
