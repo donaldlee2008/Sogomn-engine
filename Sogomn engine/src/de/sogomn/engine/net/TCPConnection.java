@@ -7,11 +7,13 @@ import java.net.Socket;
 
 /**
  * TCPConnection is for communication between a client and a server.
- * Uses a custom protocol where the first four bytes determine the length of the incoming data.
  * @author Sogomn
  *
  */
 public class TCPConnection implements IClosable {
+	
+	private String address;
+	private int port;
 	
 	private Socket socket;
 	private DataInputStream in;
@@ -25,6 +27,9 @@ public class TCPConnection implements IClosable {
 	 * @param port The port
 	 */
 	public TCPConnection(final String address, final int port) {
+		this.address = address;
+		this.port = port;
+		
 		try {
 			socket = new Socket(address, port);
 			
@@ -40,6 +45,9 @@ public class TCPConnection implements IClosable {
 	 */
 	public TCPConnection(final Socket socket) {
 		this.socket = socket;
+		
+		address = socket.getInetAddress().getHostAddress();
+		port = socket.getPort();
 		
 		try {
 			initIO(socket);
@@ -59,16 +67,25 @@ public class TCPConnection implements IClosable {
 	 * @param ex The exception that has been thrown
 	 */
 	protected void handleException(final Exception ex) {
-		System.err.println("Connection error: " + ex.getMessage());
+		if (ex instanceof NullPointerException) {
+			System.err.println("Connection has not been initialized successfully");
+		} else {
+			System.err.println("Connection error: " + ex.getMessage());
+		}
 		
 		close();
 	}
 	
 	/**
 	 * Closes the connection and all its streams.
+	 * This method does nothing if the connection is not open.
 	 */
 	@Override
 	public void close() {
+		if (!open) {
+			return;
+		}
+		
 		open = false;
 		
 		try {
@@ -76,20 +93,16 @@ public class TCPConnection implements IClosable {
 			out.close();
 			socket.close();
 		} catch (final IOException | NullPointerException ex) {
-			System.err.println("Connection has already been closed");
+			handleException(ex);
 		}
 	}
 	
 	/**
-	 * Writes four bytes equal to the data length.
-	 * Then writes the data.
-	 * @param data The data to be written
+	 * Writes the data to the output stream.
+	 * @param data The data to be sent
 	 */
 	public void write(final byte[] data) {
 		try {
-			final int length = data.length;
-			
-			out.writeInt(length);
 			out.write(data);
 			out.flush();
 		} catch (final IOException | NullPointerException ex) {
@@ -98,18 +111,98 @@ public class TCPConnection implements IClosable {
 	}
 	
 	/**
-	 * First reads four bytes which determine the data length.
-	 * Then reads the next bytes and returns them.
-	 * @return The read data
+	 * Writes an integer to the output stream.
+	 * @param i The integer to be sent
 	 */
-	public byte[] read() {
+	public void writeInt(final int i) {
 		try {
-			final int length = in.readInt();
-			final byte[] data = new byte[length];
+			out.writeInt(i);
+			out.flush();
+		} catch (final IOException | NullPointerException ex) {
+			handleException(ex);
+		}
+	}
+	
+	/**
+	 * Writes a byte to the output stream.
+	 * @param b The byte to be written
+	 */
+	public void writeByte(final byte b) {
+		try {
+			out.writeByte(b);
+			out.flush();
+		} catch (final IOException | NullPointerException ex) {
+			handleException(ex);
+		}
+	}
+	
+	/**
+	 * Writes a string in the modified UTF-8 format to the output stream.
+	 * @param message The string to be written
+	 */
+	public void writeUTF(final String message) {
+		try {
+			out.writeUTF(message);
+			out.flush();
+		} catch (final IOException | NullPointerException ex) {
+			handleException(ex);
+		}
+	}
+	
+	/**
+	 * Reads data from the input stream.
+	 * The amount of bytes read is equal to the length of the buffer.
+	 * @param buffer The buffer the read data should be stored in
+	 */
+	public void read(final byte[] buffer) {
+		try {
+			in.readFully(buffer);
+		} catch (final IOException | NullPointerException ex) {
+			handleException(ex);
+		}
+	}
+	
+	/**
+	 * Reads an integer from the input stream and returns it.
+	 * @return The integer read or zero in case of failure
+	 */
+	public int readInt() {
+		try {
+			final int i = in.readInt();
 			
-			in.readFully(data);
+			return i;
+		} catch (final IOException | NullPointerException ex) {
+			handleException(ex);
 			
-			return data;
+			return 0;
+		}
+	}
+	
+	/**
+	 * Reads the next byte from the input stream and returns it.
+	 * @return The next byte or zero in case of failure
+	 */
+	public byte readByte() {
+		try {
+			final byte b = in.readByte();
+			
+			return b;
+		} catch (final IOException | NullPointerException ex) {
+			handleException(ex);
+			
+			return 0;
+		}
+	}
+	
+	/**
+	 * Reads a string in the modified UTF-8 format and returns it.
+	 * @return The string or null in case of failure
+	 */
+	public String readUTF() {
+		try {
+			final String message = in.readUTF();
+			
+			return message;
 		} catch (final IOException | NullPointerException ex) {
 			handleException(ex);
 			
@@ -122,7 +215,7 @@ public class TCPConnection implements IClosable {
 	 * @return The address
 	 */
 	public final String getAddress() {
-		return socket.getInetAddress().getHostAddress();
+		return address;
 	}
 	
 	/**
@@ -130,7 +223,7 @@ public class TCPConnection implements IClosable {
 	 * @return The port
 	 */
 	public final int getPort() {
-		return socket.getPort();
+		return port;
 	}
 	
 	/**
