@@ -4,13 +4,19 @@ import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
 import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.KEY_INTERPOLATION;
 import static java.awt.RenderingHints.KEY_RENDERING;
+import static java.awt.RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;
 import static java.awt.RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;
 import static java.awt.RenderingHints.VALUE_ANTIALIAS_OFF;
+import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
+import static java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC;
 import static java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+import static java.awt.RenderingHints.VALUE_RENDER_QUALITY;
 import static java.awt.RenderingHints.VALUE_RENDER_SPEED;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -111,6 +117,69 @@ public final class ImageUtils {
 		g.setRenderingHint(KEY_RENDERING, VALUE_RENDER_SPEED);
 		g.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		g.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_SPEED);
+	}
+	
+	/**
+	 * Applies high graphics settings to the given Graphics2D object.
+	 * Slows down the rendering process.
+	 * - Antialiasing: ON
+	 * - Rendering: QUALITY
+	 * - Interpolation: BICUBIC
+	 * - Alpha interpolation: QUALITY
+	 * @param g The Graphics2D object
+	 */
+	public static void applyHighGraphics(final Graphics2D g) {
+		g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(KEY_RENDERING, VALUE_RENDER_QUALITY);
+		g.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_BICUBIC);
+		g.setRenderingHint(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_QUALITY);
+	}
+	
+	/**
+	 * Converts an image to a byte array.
+	 * @param image The image to convert
+	 * @param format The image format
+	 * @return The image data
+	 */
+	public static byte[] toByteArray(final BufferedImage image, final String format) {
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		
+		try {
+			ImageIO.write(image, "PNG", out);
+		} catch (final IOException ex) {
+			ex.printStackTrace();
+		}
+		
+		final byte[] data = out.toByteArray();
+		
+		return data;
+	}
+	
+	/**
+	 * Converts an image to a byte array.
+	 * Uses the PNG image format.
+	 * @param image The image to convert
+	 * @return The image data
+	 */
+	public static byte[] toByteArray(final BufferedImage image) {
+		return toByteArray(image, "PNG");
+	}
+	
+	/**
+	 * Constructs an image from a byte array.
+	 * @param data The image data
+	 * @return The image
+	 */
+	public static BufferedImage toImage(final byte[] data) {
+		final ByteArrayInputStream in = new ByteArrayInputStream(data);
+		
+		try {
+			return ImageIO.read(in);
+		} catch (final IOException ex) {
+			ex.printStackTrace();
+			
+			return null;
+		}
 	}
 	
 }
