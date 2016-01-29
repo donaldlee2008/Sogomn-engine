@@ -237,9 +237,10 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Shows the screen and initializes the graphics.
+	 * Does nothing if the screen is already visible.
 	 */
 	public synchronized void show() {
-		if (!isOpen()) {
+		if (!isOpen() || isVisible()) {
 			return;
 		}
 		
@@ -248,13 +249,15 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		calculateViewport();
 		canvas.createBufferStrategy(BUFFER_COUNT);
 		canvas.requestFocus();
+		redraw();
 	}
 	
 	/**
 	 * Hides the screen. It can not be updated anymore.
+	 * Does nothing if the screen is not visible.
 	 */
 	public synchronized void hide() {
-		if (!isOpen()) {
+		if (!isOpen() || !isVisible()) {
 			return;
 		}
 		

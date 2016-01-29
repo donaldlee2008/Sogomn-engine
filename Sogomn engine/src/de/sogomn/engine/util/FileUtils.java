@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 /**
@@ -177,6 +180,40 @@ public final class FileUtils {
 		final File file = new File(path);
 		
 		file.mkdirs();
+	}
+	
+	/**
+	 * Copies the source file to the destination and replaces it, if existent.
+	 * @param source The source file
+	 * @param destination The destination file
+	 * @return True on success; false otherwise
+	 */
+	public static boolean copy(final File source, final File destination) {
+		final Path sourcePath = source.toPath();
+		final Path destinationPath = destination.toPath();
+		
+		try {
+			Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+			
+			return true;
+		} catch (final IOException ex) {
+			ex.printStackTrace();
+			
+			return false;
+		}
+	}
+	
+	/**
+	 * Copies the source file to the destination and replaces it, if existent.
+	 * @param source The source file
+	 * @param destination The destination file
+	 * @return True on success; false otherwise
+	 */
+	public static boolean copy(final String source, final String destination) {
+		final File sourceFile = new File(source);
+		final File destinationFile = new File(destination);
+		
+		return copy(sourceFile, destinationFile);
 	}
 	
 }
