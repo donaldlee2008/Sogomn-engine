@@ -188,7 +188,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			
 			final Graphics2D g = screenImage.createGraphics();
 			
-			ImageUtils.applyLowGraphics(g);
+			ImageUtils.applyHighGraphics(g);
 			g.clearRect(0, 0, initialWidth, initialHeight);
 			notifyListeners(drawable -> drawable.draw(g));
 			g.dispose();
@@ -210,6 +210,8 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			}
 			
 			final Graphics2D canvasGraphics = (Graphics2D)bufferStrategy.getDrawGraphics();
+			
+			ImageUtils.applyLowGraphics(canvasGraphics);
 			
 			canvasGraphics.clearRect(0, 0, canvasWidth, canvasHeight);
 			canvasGraphics.drawImage(screenImage, renderX, renderY, renderWidth, renderHeight, null);
