@@ -16,6 +16,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
@@ -268,6 +269,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	
 	/**
 	 * Closes the screen.
+	 * It can't be shown again.
 	 */
 	public synchronized void close() {
 		setFullScreen(false);
@@ -306,6 +308,22 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public void removeKeyboardListener(final IKeyboardListener listener) {
 		keyboard.removeListener(listener);
+	}
+	
+	/**
+	 * Adds a window listener to the window.
+	 * @param listener The listener
+	 */
+	public void addWindowListener(final WindowListener listener) {
+		frame.addWindowListener(listener);
+	}
+	
+	/**
+	 * Removes a window listener from the window.
+	 * @param listener The listener
+	 */
+	public void removeWindowListener(final WindowListener listener) {
+		frame.removeWindowListener(listener);
 	}
 	
 	/**
