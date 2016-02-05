@@ -2,7 +2,6 @@ package de.sogomn.engine.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
  */
 public final class FileUtils {
 	
-	private static final int BUFFER_SIZE = 16;
 	private static final String NEW_LINE = "\r\n";
 	
 	private FileUtils() {
@@ -30,18 +28,18 @@ public final class FileUtils {
 	}
 	
 	private static byte[] readData(final InputStream in) {
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		final byte[] buffer = new byte[BUFFER_SIZE];
-		
 		try {
-			while (in.read(buffer) != -1) {
-				out.write(buffer);
-			}
+			final int size = in.available();
+			final byte[] data = new byte[size];
+			
+			in.read(data);
+			
+			return data;
 		} catch (final IOException ex) {
 			ex.printStackTrace();
 		}
 		
-		return out.toByteArray();
+		return null;
 	}
 	
 	private static String[] readLines(final InputStream in) {
@@ -68,7 +66,7 @@ public final class FileUtils {
 	/**
 	 * Reads all data from the given file (classpath!).
 	 * @param path The path to the file
-	 * @return The data
+	 * @return The data or null in case of failure
 	 */
 	public static byte[] readInternalData(final String path) {
 		return readData(FileUtils.class.getResourceAsStream(path));
@@ -77,7 +75,7 @@ public final class FileUtils {
 	/**
 	 * Reads all data from the given external file.
 	 * @param path The path to the file
-	 * @return The data
+	 * @return The data or null in case of failure
 	 */
 	public static byte[] readExternalData(final String path) {
 		try {
@@ -114,13 +112,13 @@ public final class FileUtils {
 	}
 	
 	/**
-	 * Writes data to the given path.
-	 * @param path The path
+	 * Writes data to the given file.
+	 * @param file The file
 	 * @param data The data
 	 */
-	public static void writeData(final String path, final byte[] data) {
+	public static void writeData(final File file, final byte[] data) {
 		try {
-			final FileOutputStream out = new FileOutputStream(path);
+			final FileOutputStream out = new FileOutputStream(file);
 			
 			out.write(data);
 			out.flush();
@@ -131,13 +129,24 @@ public final class FileUtils {
 	}
 	
 	/**
-	 * Writes lines to the given path.
+	 * Writes data to the given path.
 	 * @param path The path
+	 * @param data The data
+	 */
+	public static void writeData(final String path, final byte[] data) {
+		final File file = new File(path);
+		
+		writeData(file, data);
+	}
+	
+	/**
+	 * Writes lines of text to the given file.
+	 * @param file The file
 	 * @param lines The lines
 	 */
-	public static void writeLines(final String path, final String... lines) {
+	public static void writeLines(final File file, final String... lines) {
 		try {
-			final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path)));
+			final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
 			
 			for (final String line : lines) {
 				writer.write(line + NEW_LINE);
@@ -148,6 +157,17 @@ public final class FileUtils {
 		} catch (final IOException ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Writes lines of text to the given path.
+	 * @param path The path
+	 * @param lines The lines
+	 */
+	public static void writeLines(final String path, final String... lines) {
+		final File file = new File(path);
+		
+		writeLines(file, lines);
 	}
 	
 	/**
