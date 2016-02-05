@@ -135,7 +135,7 @@ public final class FileUtils {
 	 * @param path The path
 	 * @param lines The lines
 	 */
-	public static void writeLines(final String path, final String[] lines) {
+	public static void writeLines(final String path, final String... lines) {
 		try {
 			final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path)));
 			

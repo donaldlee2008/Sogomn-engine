@@ -29,6 +29,11 @@ import javax.imageio.ImageIO;
  */
 public final class ImageUtils {
 	
+	/**
+	 * A one pixel small transparent image.
+	 */
+	public static final BufferedImage EMPTY_IMAGE = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+	
 	private ImageUtils() {
 		//...
 	}
