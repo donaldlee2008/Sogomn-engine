@@ -138,6 +138,18 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	}
 	
 	/**
+	 * Constructs a sound from the given data.
+	 * Since no AudioFormat is specified, this might not work.
+	 * @param data The audio data
+	 * @return The sound
+	 */
+	public static Sound loadSound(final byte[] data) {
+		final Sound sound = new Sound(data, null);
+		
+		return sound;
+	}
+	
+	/**
 	 * Loads a sound from the classpath. The path should be prefixed with a slash ('/').
 	 * @param path The path
 	 * @return The sound or null in case of faliure

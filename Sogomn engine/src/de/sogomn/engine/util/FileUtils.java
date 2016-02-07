@@ -208,7 +208,7 @@ public final class FileUtils {
 	 * @param destination The destination file
 	 * @return True on success; false otherwise
 	 */
-	public static boolean copy(final File source, final File destination) {
+	public static boolean copyFile(final File source, final File destination) {
 		final Path sourcePath = source.toPath();
 		final Path destinationPath = destination.toPath();
 		
@@ -229,11 +229,11 @@ public final class FileUtils {
 	 * @param destination The destination file
 	 * @return True on success; false otherwise
 	 */
-	public static boolean copy(final String source, final String destination) {
+	public static boolean copyFile(final String source, final String destination) {
 		final File sourceFile = new File(source);
 		final File destinationFile = new File(destination);
 		
-		return copy(sourceFile, destinationFile);
+		return copyFile(sourceFile, destinationFile);
 	}
 	
 }
