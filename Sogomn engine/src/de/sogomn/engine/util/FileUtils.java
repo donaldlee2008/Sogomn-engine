@@ -29,8 +29,8 @@ public final class FileUtils {
 	
 	private static byte[] readData(final InputStream in) {
 		try {
-			final int size = in.available();
-			final byte[] data = new byte[size];
+			final int length = in.available();
+			final byte[] data = new byte[length];
 			
 			in.read(data);
 			
@@ -43,7 +43,8 @@ public final class FileUtils {
 	}
 	
 	private static String[] readLines(final InputStream in) {
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		final InputStreamReader inReader = new InputStreamReader(in);
+		final BufferedReader reader = new BufferedReader(inReader);
 		final ArrayList<String> lines = new ArrayList<String>();
 		
 		String line = null;
@@ -56,11 +57,9 @@ public final class FileUtils {
 			ex.printStackTrace();
 		}
 		
-		final String[] lineArray = new String[lines.size()];
+		final String[] linesArray = lines.stream().toArray(String[]::new);
 		
-		lines.toArray(lineArray);
-		
-		return lineArray;
+		return linesArray;
 	}
 	
 	/**
@@ -69,7 +68,26 @@ public final class FileUtils {
 	 * @return The data or null in case of failure
 	 */
 	public static byte[] readInternalData(final String path) {
-		return readData(FileUtils.class.getResourceAsStream(path));
+		final InputStream in = FileUtils.class.getResourceAsStream(path);
+		
+		return readData(in);
+	}
+	
+	/**
+	 * Reads all data from the given external file.
+	 * @param file The file
+	 * @return The data or null in case of failure
+	 */
+	public static byte[] readExternalData(final File file) {
+		try {
+			final FileInputStream in = new FileInputStream(file);
+			
+			return readData(in);
+		} catch (final IOException ex) {
+			ex.printStackTrace();
+			
+			return null;
+		}
 	}
 	
 	/**
@@ -78,37 +96,48 @@ public final class FileUtils {
 	 * @return The data or null in case of failure
 	 */
 	public static byte[] readExternalData(final String path) {
-		try {
-			return readData(new FileInputStream(path));
-		} catch (final IOException ex) {
-			ex.printStackTrace();
-			
-			return null;
-		}
+		final File file = new File(path);
+		
+		return readExternalData(file);
 	}
 	
 	/**
 	 * Reads all lines from the given file (classpath!).
 	 * @param path The path to the file
-	 * @return The lines
+	 * @return The lines or null in case of failure
 	 */
 	public static String[] readInternalLines(final String path) {
-		return readLines(FileUtils.class.getResourceAsStream(path));
+		final InputStream in = FileUtils.class.getResourceAsStream(path);
+		
+		return readLines(in);
 	}
 	
 	/**
 	 * Reads all lines from the given external file.
-	 * @param path The path to the file
-	 * @return The lines
+	 * @param file The file
+	 * @return The lines or null in case of failure
 	 */
-	public static String[] readExternalLines(final String path) {
+	public static String[] readExternalLines(final File file) {
 		try {
-			return readLines(new FileInputStream(path));
+			final FileInputStream in = new FileInputStream(file);
+			
+			return readLines(in);
 		} catch (final IOException ex) {
 			ex.printStackTrace();
 			
 			return null;
 		}
+	}
+	
+	/**
+	 * Reads all lines from the given external file.
+	 * @param path The path to the file
+	 * @return The lines or null in case of failure
+	 */
+	public static String[] readExternalLines(final String path) {
+		final File file = new File(path);
+		
+		return readExternalLines(file);
 	}
 	
 	/**
@@ -146,7 +175,9 @@ public final class FileUtils {
 	 */
 	public static void writeLines(final File file, final String... lines) {
 		try {
-			final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+			final FileOutputStream out = new FileOutputStream(file);
+			final OutputStreamWriter outWriter = new OutputStreamWriter(out);
+			final BufferedWriter writer = new BufferedWriter(outWriter);
 			
 			for (final String line : lines) {
 				writer.write(line + NEW_LINE);
