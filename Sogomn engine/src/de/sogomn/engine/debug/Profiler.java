@@ -54,7 +54,7 @@ public final class Profiler {
 	 * If this is the first section, it also starts profiling.
 	 * @param name The name of the section
 	 */
-	public void startSection(final String name) {
+	public void start(final String name) {
 		if (!profiling) {
 			profiling = true;
 			clock.reset();
@@ -67,6 +67,7 @@ public final class Profiler {
 	
 	/**
 	 * Ends profiling and prints the results to the passed PrintStream.
+	 * The time is specified as seconds.
 	 */
 	public void end() {
 		if (!profiling) {

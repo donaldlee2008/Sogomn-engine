@@ -68,7 +68,9 @@ public class TCPConnection implements IClosable {
 	 */
 	protected void handleException(final Exception ex) {
 		if (ex instanceof NullPointerException) {
-			System.err.println("Connection has not been initialized successfully");
+			System.err.println("Tried to close connection but it already is.");
+		} else if (ex instanceof IOException) {
+			System.err.println("Connection closed.");
 		} else {
 			System.err.println("Connection error: " + ex.getMessage());
 		}
@@ -92,7 +94,7 @@ public class TCPConnection implements IClosable {
 			in.close();
 			out.close();
 			socket.close();
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			handleException(ex);
 		}
 	}
@@ -105,7 +107,7 @@ public class TCPConnection implements IClosable {
 		try {
 			out.write(data);
 			out.flush();
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			handleException(ex);
 		}
 	}
@@ -118,7 +120,7 @@ public class TCPConnection implements IClosable {
 		try {
 			out.writeInt(i);
 			out.flush();
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			handleException(ex);
 		}
 	}
@@ -131,7 +133,7 @@ public class TCPConnection implements IClosable {
 		try {
 			out.writeByte(b);
 			out.flush();
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			handleException(ex);
 		}
 	}
@@ -144,7 +146,33 @@ public class TCPConnection implements IClosable {
 		try {
 			out.writeUTF(message);
 			out.flush();
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
+			handleException(ex);
+		}
+	}
+	
+	/**
+	 * Writes a long to the output stream.
+	 * @param l The long to be sent
+	 */
+	public void writeLong(final long l) {
+		try {
+			out.writeLong(l);
+			out.flush();
+		} catch (final Exception ex) {
+			handleException(ex);
+		}
+	}
+	
+	/**
+	 * Writes a short to the output stream.
+	 * @param s The short to be sent
+	 */
+	public void writeShort(final short s) {
+		try {
+			out.writeShort(s);
+			out.flush();
+		} catch (final Exception ex) {
 			handleException(ex);
 		}
 	}
@@ -157,7 +185,7 @@ public class TCPConnection implements IClosable {
 	public void read(final byte[] buffer) {
 		try {
 			in.readFully(buffer);
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			handleException(ex);
 		}
 	}
@@ -171,7 +199,7 @@ public class TCPConnection implements IClosable {
 			final int i = in.readInt();
 			
 			return i;
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			handleException(ex);
 			
 			return 0;
@@ -187,7 +215,7 @@ public class TCPConnection implements IClosable {
 			final byte b = in.readByte();
 			
 			return b;
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			handleException(ex);
 			
 			return 0;
@@ -203,10 +231,42 @@ public class TCPConnection implements IClosable {
 			final String message = in.readUTF();
 			
 			return message;
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			handleException(ex);
 			
 			return null;
+		}
+	}
+	
+	/**
+	 * Reads the next long from the input stream and returns it.
+	 * @return The next long or zero in case of failure
+	 */
+	public long readLong() {
+		try {
+			final long l = in.readLong();
+			
+			return l;
+		} catch (final Exception ex) {
+			handleException(ex);
+			
+			return 0;
+		}
+	}
+	
+	/**
+	 * Reads the next short from the input stream and returns it.
+	 * @return The next short or zero in case of failure
+	 */
+	public short readShort() {
+		try {
+			final short s = in.readShort();
+			
+			return s;
+		} catch (final Exception ex) {
+			handleException(ex);
+			
+			return 0;
 		}
 	}
 	
