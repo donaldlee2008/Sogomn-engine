@@ -19,8 +19,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 /**
  * This class holds some useful methods in terms of images.
@@ -168,6 +172,37 @@ public final class ImageUtils {
 	 */
 	public static byte[] toByteArray(final BufferedImage image) {
 		return toByteArray(image, "PNG");
+	}
+	
+	/**
+	 * Converts an image to a byte array.
+	 * Uses the JPEG image format.
+	 * The quality can be between 1 (best) and 0 (highest compression)
+	 * @param image The image that should be converted
+	 * @param quality The quality of the image
+	 * @return The image as a byte array
+	 */
+	public static byte[] toByteArray(final BufferedImage image, final float quality) {
+		final Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("JPG");
+		final ImageWriter writer = writers.next();
+		final ImageWriteParam param = writer.getDefaultWriteParam();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		
+		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		param.setCompressionQuality(0);
+		
+		try {
+			final ImageOutputStream imageOut = ImageIO.createImageOutputStream(out);
+			
+			writer.setOutput(imageOut);
+			writer.write(image);
+			
+			return out.toByteArray();
+		} catch (final IOException ex) {
+			ex.printStackTrace();
+		}
+		
+		return null;
 	}
 	
 	/**
