@@ -51,4 +51,13 @@ public abstract class AbstractListenerContainer<T> {
 		}
 	}
 	
+	/**
+	 * Removes all listeners from the container.
+	 */
+	public final void removeAllListeners() {
+		synchronized (listeners) {
+			listeners.clear();
+		}
+	}
+	
 }
