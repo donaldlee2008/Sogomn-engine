@@ -114,6 +114,25 @@ public final class ImageUtils {
 	}
 	
 	/**
+	 * Creates a copy of the passed image scaled by the passed factor.
+	 * If the scale is 1 then the original image is returned.
+	 * This method does not use interpolation.
+	 * @param image The image to be scaled
+	 * @param scale The scale
+	 * @return A scaled copy of the image
+	 */
+	public static BufferedImage scaleImage(final BufferedImage image, final float scale) {
+		if (scale == 1) {
+			return image;
+		}
+		
+		final int width = (int)(image.getWidth() * scale);
+		final int height = (int)(image.getHeight() * scale);
+		
+		return scaleImage(image, width, height);
+	}
+	
+	/**
 	 * Applies low graphics settings to the given Graphics2D object.
 	 * - Antialiasing: OFF
 	 * - Rendering: SPEED
