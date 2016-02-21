@@ -20,6 +20,8 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -371,12 +373,15 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
-	 * Sets the icon of the screen.
+	 * Sets the icons of the screen.
 	 * It will be displayed on the top left of the frame as well as in the taskbar.
-	 * @param image The icon as an image
+	 * Different icons will be displayed depending on the platform capabilities.
+	 * @param images The icons
 	 */
-	public void setIcon(final BufferedImage image) {
-		frame.setIconImage(image);
+	public void setIcons(final BufferedImage... images) {
+		final List<BufferedImage> imageList = Arrays.asList(images);
+		
+		frame.setIconImages(imageList);
 	}
 	
 	/**
