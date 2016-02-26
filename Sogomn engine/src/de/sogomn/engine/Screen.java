@@ -297,6 +297,13 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
+	 * Removes all mouse listeners.
+	 */
+	public void removeAllMouseListeners() {
+		mouse.removeAllListeners();
+	}
+	
+	/**
 	 * Adds a keyboard listener to the screen.
 	 * @param listener The listener
 	 */
@@ -310,6 +317,13 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public void removeKeyboardListener(final IKeyboardListener listener) {
 		keyboard.removeListener(listener);
+	}
+	
+	/**
+	 * Removes all keyboard listeners.
+	 */
+	public void removeAllKeyboardListeners() {
+		keyboard.removeAllListeners();
 	}
 	
 	/**

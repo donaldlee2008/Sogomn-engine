@@ -271,6 +271,20 @@ public class TCPConnection implements IClosable {
 	}
 	
 	/**
+	 * Returns the number of available bytes in the input stream.
+	 * @return The available bytes
+	 */
+	public int available() {
+		try {
+			return in.available();
+		} catch (final Exception ex) {
+			handleException(ex);
+			
+			return 0;
+		}
+	}
+	
+	/**
 	 * Returns the remote host address.
 	 * @return The address
 	 */
