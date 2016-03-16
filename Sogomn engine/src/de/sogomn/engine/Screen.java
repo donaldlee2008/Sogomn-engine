@@ -42,7 +42,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	private Mouse mouse;
 	private Keyboard keyboard;
 	
-	private GraphicsDevice display;
 	private VolatileImage screenImage;
 	
 	private boolean open;
@@ -74,7 +73,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 				close();
 			}
 		};
-		
 		final ComponentAdapter resizeAdapter = new ComponentAdapter() {
 			@Override
 			public void componentResized(final ComponentEvent c) {
@@ -89,8 +87,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		mouse = new Mouse();
 		keyboard = new Keyboard();
 		
-		display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		
 		open = true;
 		initialWidth = canvasWidth = renderWidth = width;
 		initialHeight = canvasHeight = renderHeight = height;
@@ -103,6 +99,10 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		canvas.addMouseWheelListener(mouse);
 		canvas.addKeyListener(keyboard);
 		
+		frame.addMouseListener(mouse);
+		frame.addMouseMotionListener(mouse);
+		frame.addMouseWheelListener(mouse);
+		frame.addKeyListener(keyboard);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setIgnoreRepaint(true);
 		frame.addWindowListener(closingAdapter);
@@ -367,6 +367,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * @param fullScreen The full screen flag
 	 */
 	public void setFullScreen(final boolean fullScreen) {
+		final GraphicsDevice display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		final boolean fullScreenAllowed = display.isFullScreenSupported();
 		
 		if (fullScreen && fullScreenAllowed) {
@@ -474,6 +475,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * @return True if the screen is in full screen mode; false otherwise
 	 */
 	public boolean isFullScreen() {
+		final GraphicsDevice display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		final Window window = display.getFullScreenWindow();
 		final boolean fullScreen = window != null && window == frame;
 		
