@@ -1,14 +1,13 @@
 package de.sogomn.engine.util;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import de.sogomn.engine.IUpdatable;
 
 /**
  * The Scheduler class can be used to schedule tasks.
  * The method "update" needs to be called regularly in order to work.
- * Does not use a separate thread. All methods are synchronized with the internal list.
+ * Does not use a separate thread.
  * @author Sogomn
  *
  */
@@ -27,26 +26,26 @@ public final class Scheduler implements IUpdatable {
 	 * Updates the scheduler.
 	 */
 	@Override
-	public synchronized void update(final double delta) {
-		final Iterator<Task> iterator = tasks.iterator();
+	public void update(final double delta) {
+		final int size = tasks.size();
 		
-		while (iterator.hasNext()) {
-			final Task task = iterator.next();
-			
-			if (task.isDone()) {
-				iterator.remove();
-				
-				task.execute();
-			}
+		for (int i = 0; i < size; i++) {
+			final Task task = tasks.get(i);
 			
 			task.update(delta);
+			
+			if (task.isDone()) {
+				task.execute();
+			}
 		}
+		
+		tasks.removeIf(Task::isDone);
 	}
 	
 	/**
 	 * Removes all tasks from the schedule.
 	 */
-	public synchronized void clearTasks() {
+	public void clearTasks() {
 		tasks.clear();
 	}
 	
@@ -54,7 +53,7 @@ public final class Scheduler implements IUpdatable {
 	 * Adds a task to the schedule.
 	 * @param task The task
 	 */
-	public synchronized void addTask(final Task task) {
+	public void addTask(final Task task) {
 		tasks.add(task);
 	}
 	
@@ -62,7 +61,7 @@ public final class Scheduler implements IUpdatable {
 	 * Removes a task from the schedule.
 	 * @param task The task to be removed
 	 */
-	public synchronized void removeTask(final Task task) {
+	public void removeTask(final Task task) {
 		tasks.remove(task);
 	}
 	
@@ -70,7 +69,7 @@ public final class Scheduler implements IUpdatable {
 	 * Returns whether the scheduler has a task scheduled or not.
 	 * @return True if there is a task scheduled; false otherwise.
 	 */
-	public synchronized boolean hasTask() {
+	public boolean hasTask() {
 		return !tasks.isEmpty();
 	}
 	
@@ -88,7 +87,7 @@ public final class Scheduler implements IUpdatable {
 		/**
 		 * Constructs a new Task object.
 		 * @param runnable The method "execute" will be called when the task gets executed
-		 * @param time The time the task should be executed after
+		 * @param time The time the task should be executed after in seconds
 		 */
 		public Task(final Runnable runnable, final float time) {
 			this.runnable = runnable;
@@ -104,7 +103,15 @@ public final class Scheduler implements IUpdatable {
 		}
 		
 		/**
-		 * Returns the time the task should be executed after.
+		 * Resets the internal timer of the task.
+		 * If this method is called on a task's execution, the task will reschedule.
+		 */
+		public void reset() {
+			timer = 0;
+		}
+		
+		/**
+		 * Returns the time the task should be executed after in seconds.
 		 * @return The time
 		 */
 		public float getTime() {

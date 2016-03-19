@@ -1,5 +1,7 @@
 package de.sogomn.engine.util;
 
+import java.awt.Desktop;
+import java.awt.Desktop.Action;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -265,6 +267,59 @@ public final class FileUtils {
 		final File destinationFile = new File(destination);
 		
 		return copyFile(sourceFile, destinationFile);
+	}
+	
+	/**
+	 * Executes the given file.
+	 * @param file The file to be executed
+	 * @return True on success; false otherwise
+	 */
+	public static boolean executeFile(final File file) {
+		final boolean desktopSupported = Desktop.isDesktopSupported();
+		
+		if (desktopSupported && file.exists()) {
+			final Desktop desktop = Desktop.getDesktop();
+			final boolean canOpen = desktop.isSupported(Action.OPEN);
+			
+			if (canOpen) {
+				try {
+					desktop.open(file);
+					
+					return true;
+				} catch (final IOException ex) {
+					//...
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Executes the given file.
+	 * @param path The path to the file
+	 * @return True on success; false otherwise
+	 */
+	public static boolean executeFile(final String path) {
+		final File file = new File(path);
+		final boolean desktopSupported = Desktop.isDesktopSupported();
+		
+		if (desktopSupported && file.exists()) {
+			final Desktop desktop = Desktop.getDesktop();
+			final boolean canOpen = desktop.isSupported(Action.OPEN);
+			
+			if (canOpen) {
+				try {
+					desktop.open(file);
+					
+					return true;
+				} catch (final IOException ex) {
+					//...
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 }
