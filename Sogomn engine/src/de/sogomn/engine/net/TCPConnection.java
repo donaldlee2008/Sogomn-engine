@@ -92,10 +92,35 @@ public class TCPConnection implements IClosable {
 		
 		try {
 			in.close();
+		} catch (final Exception ex) {
+			handleException(ex);
+		} try {
 			out.close();
+		} catch (final Exception ex) {
+			handleException(ex);
+		} try {
 			socket.close();
 		} catch (final Exception ex) {
 			handleException(ex);
+		}
+	}
+	
+	/**
+	 * Reads all the available bytes from the input stream.
+	 * @return The read bytes or null in case of failure
+	 */
+	public byte[] readAllAvailable() {
+		try {
+			final int available = in.available();
+			final byte[] buffer = new byte[available];
+			
+			in.readFully(buffer);
+			
+			return buffer;
+		} catch (final Exception ex) {
+			handleException(ex);
+			
+			return null;
 		}
 	}
 	

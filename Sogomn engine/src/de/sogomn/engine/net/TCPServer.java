@@ -35,6 +35,8 @@ public class TCPServer implements IClosable {
 	protected void handleException(final Exception ex) {
 		if (ex instanceof NullPointerException) {
 			System.err.println("Server has not been initialized successfully");
+		} else if (ex instanceof IOException) {
+			System.err.println("Server closed.");
 		} else {
 			System.err.println("Server error: " + ex.getMessage());
 		}
