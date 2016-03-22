@@ -93,15 +93,15 @@ public class TCPConnection implements IClosable {
 		try {
 			in.close();
 		} catch (final Exception ex) {
-			handleException(ex);
+			//...
 		} try {
 			out.close();
 		} catch (final Exception ex) {
-			handleException(ex);
+			//...
 		} try {
 			socket.close();
 		} catch (final Exception ex) {
-			handleException(ex);
+			//...
 		}
 	}
 	
