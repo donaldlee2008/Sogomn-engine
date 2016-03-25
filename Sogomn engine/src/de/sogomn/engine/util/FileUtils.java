@@ -42,6 +42,8 @@ public final class FileUtils {
 				out.write(buffer, 0, bytesRead);
 			}
 			
+			in.close();
+			
 			final byte[] data = out.toByteArray();
 			
 			return data;
@@ -63,6 +65,8 @@ public final class FileUtils {
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);
 			}
+			
+			in.close();
 		} catch (final IOException ex) {
 			ex.printStackTrace();
 		}
