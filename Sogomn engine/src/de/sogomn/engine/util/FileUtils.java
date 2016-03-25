@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.awt.Desktop.Action;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
  */
 public final class FileUtils {
 	
+	private static final int BUFFER_SIZE = 1024;
 	private static final String NEW_LINE = "\r\n";
 	
 	private FileUtils() {
@@ -31,10 +33,16 @@ public final class FileUtils {
 	
 	private static byte[] readData(final InputStream in) {
 		try {
-			final int length = in.available();
-			final byte[] data = new byte[length];
+			final ByteArrayOutputStream out = new ByteArrayOutputStream();
+			final byte[] buffer = new byte[BUFFER_SIZE];
 			
-			in.read(data);
+			int bytesRead = 0;
+			
+			while ((bytesRead = in.read(buffer)) != -1) {
+				out.write(buffer, 0, bytesRead);
+			}
+			
+			final byte[] data = out.toByteArray();
 			
 			return data;
 		} catch (final IOException ex) {
@@ -214,7 +222,7 @@ public final class FileUtils {
 		final File parent = file.getParentFile();
 		
 		if (parent != null) {
-			createFolder(parent.getPath());
+			createDirectory(parent.getPath());
 		}
 		
 		try {
@@ -229,7 +237,7 @@ public final class FileUtils {
 	 * If the folder already exists, nothing will happen.
 	 * @param path The path
 	 */
-	public static void createFolder(final String path) {
+	public static void createDirectory(final String path) {
 		final File file = new File(path);
 		
 		file.mkdirs();
@@ -287,7 +295,7 @@ public final class FileUtils {
 					
 					return true;
 				} catch (final IOException ex) {
-					//...
+					return false;
 				}
 			}
 		}
@@ -302,24 +310,8 @@ public final class FileUtils {
 	 */
 	public static boolean executeFile(final String path) {
 		final File file = new File(path);
-		final boolean desktopSupported = Desktop.isDesktopSupported();
 		
-		if (desktopSupported && file.exists()) {
-			final Desktop desktop = Desktop.getDesktop();
-			final boolean canOpen = desktop.isSupported(Action.OPEN);
-			
-			if (canOpen) {
-				try {
-					desktop.open(file);
-					
-					return true;
-				} catch (final IOException ex) {
-					//...
-				}
-			}
-		}
-		
-		return false;
+		return executeFile(file);
 	}
 	
 }
