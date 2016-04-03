@@ -68,9 +68,9 @@ public class TCPConnection implements IClosable {
 	 */
 	protected void handleException(final Exception ex) {
 		if (ex instanceof NullPointerException) {
-			System.err.println("Tried to close connection but it already is.");
+			System.err.println("Tried to close connection but it already is: " + ex.getMessage());
 		} else if (ex instanceof IOException) {
-			System.err.println("Connection closed.");
+			System.err.println("Connection closed: " + ex.getMessage());
 		} else {
 			System.err.println("Connection error: " + ex.getMessage());
 		}
