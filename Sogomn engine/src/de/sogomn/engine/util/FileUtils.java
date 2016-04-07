@@ -226,7 +226,9 @@ public final class FileUtils {
 		final File parent = file.getParentFile();
 		
 		if (parent != null) {
-			createDirectory(parent.getPath());
+			final String parentPath = parent.getAbsolutePath();
+			
+			createDirectory(parentPath);
 		}
 		
 		try {
