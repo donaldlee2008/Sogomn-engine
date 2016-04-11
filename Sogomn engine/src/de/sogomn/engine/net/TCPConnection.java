@@ -167,7 +167,7 @@ public class TCPConnection implements IClosable {
 	 * Writes a string in the modified UTF-8 format to the output stream.
 	 * @param message The string to be written
 	 */
-	public void writeUTF(final String message) {
+	public void writeUtf(final String message) {
 		try {
 			out.writeUTF(message);
 			out.flush();
@@ -251,7 +251,7 @@ public class TCPConnection implements IClosable {
 	 * Reads a string in the modified UTF-8 format and returns it.
 	 * @return The string or null in case of failure
 	 */
-	public String readUTF() {
+	public String readUtf() {
 		try {
 			final String message = in.readUTF();
 			

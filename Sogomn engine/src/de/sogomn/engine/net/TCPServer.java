@@ -58,7 +58,7 @@ public class TCPServer implements IClosable {
 		
 		try {
 			server.close();
-		} catch (final IOException | NullPointerException ex) {
+		} catch (final Exception ex) {
 			//...
 		}
 	}
