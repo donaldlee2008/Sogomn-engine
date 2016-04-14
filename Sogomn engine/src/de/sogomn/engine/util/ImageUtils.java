@@ -208,7 +208,7 @@ public final class ImageUtils {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		
 		param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-		param.setCompressionQuality(0);
+		param.setCompressionQuality(quality);
 		
 		try {
 			final ImageOutputStream imageOut = ImageIO.createImageOutputStream(out);
@@ -239,6 +239,25 @@ public final class ImageUtils {
 			
 			return null;
 		}
+	}
+	
+	/**
+	 * Converts a BufferedImage object to the specified type.
+	 * This creates a copy and does not modify the original.
+	 * @param image The image to be converted.
+	 * @param type The new image type
+	 * @return The converted image
+	 */
+	public static BufferedImage convert(final BufferedImage image, final int type) {
+		final int width = image.getWidth();
+		final int height = image.getHeight();
+		final BufferedImage newImage = new BufferedImage(width, height, type);
+		final Graphics2D g = newImage.createGraphics();
+		
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
+		
+		return newImage;
 	}
 	
 }

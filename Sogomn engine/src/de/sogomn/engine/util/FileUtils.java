@@ -239,6 +239,16 @@ public final class FileUtils {
 	}
 	
 	/**
+	 * Deletes the specified file.
+	 * @param path The path to the file
+	 */
+	public static void deleteFile(final String path) {
+		final File file = new File(path);
+		
+		file.delete();
+	}
+	
+	/**
 	 * Creates a new folder and all necessary parent folders.
 	 * If the folder already exists, nothing will happen.
 	 * @param path The path
