@@ -244,6 +244,7 @@ public final class FileUtils {
 	/**
 	 * Deletes the specified file.
 	 * @param path The path to the file
+	 * @return True on success; false otherwise
 	 */
 	public static boolean deleteFile(final String path) {
 		final File file = new File(path);
