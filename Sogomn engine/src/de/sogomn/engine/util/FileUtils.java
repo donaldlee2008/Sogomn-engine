@@ -220,8 +220,9 @@ public final class FileUtils {
 	 * Also creates all nonexistent parent directories.
 	 * If the file already exists, nothing will happen.
 	 * @param path The path
+	 * @return True on success; false otherwise
 	 */
-	public static void createFile(final String path) {
+	public static boolean createFile(final String path) {
 		final File file = new File(path);
 		final File parent = file.getParentFile();
 		
@@ -232,9 +233,11 @@ public final class FileUtils {
 		}
 		
 		try {
-			file.createNewFile();
-		} catch (final IOException ex) {
+			return file.createNewFile();
+		} catch (final Exception ex) {
 			ex.printStackTrace();
+			
+			return false;
 		}
 	}
 	
@@ -242,21 +245,22 @@ public final class FileUtils {
 	 * Deletes the specified file.
 	 * @param path The path to the file
 	 */
-	public static void deleteFile(final String path) {
+	public static boolean deleteFile(final String path) {
 		final File file = new File(path);
 		
-		file.delete();
+		return file.delete();
 	}
 	
 	/**
 	 * Creates a new folder and all necessary parent folders.
 	 * If the folder already exists, nothing will happen.
 	 * @param path The path
+	 * @return True on success; false otherwise
 	 */
-	public static void createDirectory(final String path) {
+	public static boolean createDirectory(final String path) {
 		final File file = new File(path);
 		
-		file.mkdirs();
+		return file.mkdirs();
 	}
 	
 	/**
@@ -273,7 +277,7 @@ public final class FileUtils {
 			Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 			
 			return true;
-		} catch (final IOException ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 			
 			return false;

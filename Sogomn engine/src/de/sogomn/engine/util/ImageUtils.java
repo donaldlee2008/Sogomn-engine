@@ -52,7 +52,7 @@ public final class ImageUtils {
 			final BufferedImage image = ImageIO.read(ImageUtils.class.getResource(path));
 			
 			return image;
-		} catch (final IOException ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 			
 			return null;
@@ -69,7 +69,7 @@ public final class ImageUtils {
 			final BufferedImage image = ImageIO.read(file);
 			
 			return image;
-		} catch (final IOException ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 			
 			return null;
@@ -102,7 +102,8 @@ public final class ImageUtils {
 			return image;
 		}
 		
-		final BufferedImage newImage = new BufferedImage(width, height, image.getType());
+		final int type = image.getType();
+		final BufferedImage newImage = new BufferedImage(width, height, type);
 		final Graphics2D g = newImage.createGraphics();
 		
 		applyLowGraphics(g);

@@ -32,6 +32,13 @@ public final class Profiler {
 		sections = new LinkedList<Section>();
 	}
 	
+	/**
+	 * Constructs a profiler object and uses the "System.out" as the output.
+	 */
+	public Profiler() {
+		this(System.out);
+	}
+	
 	private void newSection() {
 		final double elapsed = clock.update();
 		final Section section = new Section(lastName, elapsed);

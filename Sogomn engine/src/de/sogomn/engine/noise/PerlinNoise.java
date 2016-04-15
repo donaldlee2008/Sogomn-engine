@@ -7,6 +7,7 @@ import de.sogomn.engine.util.Vector2D;
 /**
  * This class has a grid of 2D vectors of the length 1 which are rotated randomly.
  * The noise values of a point in the 2D space can then be calculated.
+ * Generates values from 1 to -1.
  * @author Sogomn
  *
  */
@@ -61,6 +62,7 @@ public final class PerlinNoise implements INoise2D {
 	/**
 	 * Returns the noise value at the given point.
 	 * The value is the relation of the nearest four grid vectors and the distance of the given point to those.
+	 * @return A value from 1 to -1 (inclusive)
 	 */
 	@Override
 	public double getValue(final double x, final double y) {

@@ -3,6 +3,7 @@ package de.sogomn.engine.util;
 
 /**
  * This class defines a vector. There are several methods to make calculations easier.
+ * All methods (exept "add", "set", ...) return a copy instead of the original object.
  * @author Sogomn
  *
  */
@@ -118,6 +119,16 @@ public final strictfp class Vector2D {
 	 * @param y The y coodinate
 	 */
 	public void setY(final double y) {
+		this.y = y;
+	}
+	
+	/**
+	 * Sets the x and y coordinates.
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 */
+	public void set(final double x, final double y) {
+		this.x = x;
 		this.y = y;
 	}
 	

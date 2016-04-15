@@ -232,7 +232,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Then swaps buffers.
 	 */
 	public synchronized void redraw() {
-		if (!isVisible()) {
+		if (!isOpen() || !isVisible()) {
 			return;
 		}
 		
@@ -251,9 +251,10 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		
 		frame.setVisible(true);
 		screenImage = createImage();
-		calculateViewport();
 		canvas.createBufferStrategy(BUFFER_COUNT);
 		canvas.requestFocus();
+		
+		calculateViewport();
 		redraw();
 	}
 	
@@ -274,10 +275,15 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * It can't be shown again.
 	 */
 	public synchronized void close() {
+		if (!isOpen() || !isVisible()) {
+			return;
+		}
+		
 		setFullScreen(false);
-		hide();
-		open = false;
+		
+		frame.setVisible(false);
 		frame.dispose();
+		open = false;
 	}
 	
 	/**
@@ -408,10 +414,10 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public void setSize(final int width, final int height) {
 		final boolean visible = isVisible();
+		final Dimension size = new Dimension(width, height);
 		
-		hide();
-		
-		canvas.setPreferredSize(new Dimension(width, height));
+		frame.setVisible(false);
+		canvas.setPreferredSize(size);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		

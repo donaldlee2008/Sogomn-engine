@@ -36,19 +36,21 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 		this.format = format;
 	}
 	
-	private void writeData() {
+	private void writeDataToLine() {
 		try {
 			playing = true;
 			line = AudioSystem.getSourceDataLine(format);
 			
 			if (line == null) {
 				return;
-			} else {
-				line.open();
 			}
 			
+			line.open();
+			
 			final FloatControl gainControl = (FloatControl)line.getControl(Type.MASTER_GAIN);
-			final float actualGain = Math.max(gainControl.getMinimum(), Math.min(gainControl.getMaximum(), gain));
+			final float minimum = gainControl.getMinimum();
+			final float maximum = gainControl.getMaximum();
+			final float actualGain = Math.max(minimum, Math.min(maximum, gain));
 			
 			gainControl.setValue(actualGain);
 			
@@ -61,45 +63,40 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	}
 	
 	/**
-	 * Plays the sound. This method is not blocking.
-	 */
-	public synchronized void play() {
-		final Thread thread = new Thread(() -> {
-			writeData();
-			
-			notifyListeners(listener -> listener.stopped(this));
-		});
-		
-		thread.start();
-	}
-	
-	/**
 	 * Loops the sound the given amount of times.
 	 * @param loops The loop count
 	 */
 	public synchronized void play(final int loops) {
-		final Thread thread = new Thread(() -> {
+		final Runnable runnable = () -> {
 			for (int i = 0; i < loops; i++) {
-				writeData();
+				writeDataToLine();
 				
 				if (!playing) {
-					return;
+					break;
 				}
 				
 				notifyListeners(listener -> listener.looped(this));
 			}
 			
 			notifyListeners(listener -> listener.stopped(this));
-		});
+		};
+		final Thread thread = new Thread(runnable);
 		
 		thread.start();
+	}
+	
+	/**
+	 * Plays the sound. This method is not blocking.
+	 */
+	public synchronized void play() {
+		play(1);
 	}
 	
 	/**
 	 * Stops the sound.
 	 */
 	public synchronized void stop() {
-		if (line == null) {
+		if (line == null || !playing) {
 			return;
 		}
 		

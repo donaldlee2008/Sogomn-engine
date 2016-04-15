@@ -9,16 +9,14 @@ import de.sogomn.engine.util.ImageUtils;
 
 /**
  * This class can be used for backgrounds in games.
- * The methods "update" and "draw" should called in order to work properly.
+ * The methods "update" and "draw" should called in a loop in order to work properly.
  * @author Sogomn
  *
  */
 public final class Background implements IUpdatable, IDrawable {
 	
 	private int width, height;
-	
 	private double x, y;
-	
 	private double horizontalSpeed, verticalSpeed;
 	
 	private BufferedImage image;
