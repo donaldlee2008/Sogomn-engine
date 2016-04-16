@@ -32,6 +32,7 @@ import de.sogomn.engine.util.ImageUtils;
  * This class represents a screen.
  * Uses JFrame and Canvas classes internally.
  * Uses double buffering.
+ * Methods like "show", "hide" and "close" are not synchronized with the AWT even queue! Do that manually!
  * @author Sogomn
  *
  */
@@ -77,8 +78,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			@Override
 			public void componentResized(final ComponentEvent c) {
 				calculateViewport();
-				redraw();
-				canvas.requestFocus();
 			}
 		};
 		
@@ -231,7 +230,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Then notifies all listening IDrawable objects.
 	 * Then swaps buffers.
 	 */
-	public synchronized void redraw() {
+	public void redraw() {
 		if (!isOpen() || !isVisible()) {
 			return;
 		}
@@ -244,7 +243,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Shows the screen and initializes the graphics.
 	 * Does nothing if the screen is already visible.
 	 */
-	public synchronized void show() {
+	public void show() {
 		if (!isOpen() || isVisible()) {
 			return;
 		}
@@ -262,7 +261,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Hides the screen. It can not be updated anymore.
 	 * Does nothing if the screen is not visible.
 	 */
-	public synchronized void hide() {
+	public void hide() {
 		if (!isOpen() || !isVisible()) {
 			return;
 		}
@@ -274,7 +273,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * Closes the screen.
 	 * It can't be shown again.
 	 */
-	public synchronized void close() {
+	public void close() {
 		if (!isOpen() || !isVisible()) {
 			return;
 		}
