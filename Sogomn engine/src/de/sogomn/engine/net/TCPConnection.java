@@ -13,7 +13,7 @@ import java.net.Socket;
 public class TCPConnection implements IClosable {
 	
 	private String address;
-	private int port;
+	private int port, localPort;
 	
 	private Socket socket;
 	private DataInputStream in;
@@ -32,6 +32,7 @@ public class TCPConnection implements IClosable {
 		
 		try {
 			socket = new Socket(address, port);
+			localPort = socket.getLocalPort();
 			
 			initIO(socket);
 		} catch (final IOException ex) {
@@ -48,6 +49,7 @@ public class TCPConnection implements IClosable {
 		
 		address = socket.getInetAddress().getHostAddress();
 		port = socket.getPort();
+		localPort = socket.getLocalPort();
 		
 		try {
 			initIO(socket);
@@ -323,6 +325,14 @@ public class TCPConnection implements IClosable {
 	 */
 	public final int getPort() {
 		return port;
+	}
+	
+	/**
+	 * Returns the local port.
+	 * @return The local port
+	 */
+	public final int getLocalPort() {
+		return localPort;
 	}
 	
 	/**
