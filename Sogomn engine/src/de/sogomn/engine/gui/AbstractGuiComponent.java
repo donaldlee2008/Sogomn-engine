@@ -55,12 +55,6 @@ public abstract class AbstractGuiComponent implements IDrawable, IMouseListener,
 		this.height = height;
 	}
 	
-	private boolean contains(final int xPos, final int yPos) {
-		final boolean contains = xPos > x && xPos < x + width && yPos > y && yPos < y + height;
-		
-		return contains;
-	}
-	
 	/**
 	 * Called when the user clicked the component.
 	 * @param button The mouse button
@@ -118,6 +112,18 @@ public abstract class AbstractGuiComponent implements IDrawable, IMouseListener,
 		if (focused && flag) {
 			typed(key);
 		}
+	}
+	
+	/**
+	 * Returns true if the point specified by x and y lies inside the component.
+	 * @param xPos The x coordinate
+	 * @param yPos The y coordinate
+	 * @return True if the point intersects the component; false otherwise
+	 */
+	public boolean contains(final int xPos, final int yPos) {
+		final boolean contains = xPos > x && xPos < x + width && yPos > y && yPos < y + height;
+		
+		return contains;
 	}
 	
 	/**
