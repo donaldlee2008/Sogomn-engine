@@ -2,8 +2,6 @@
 
 ---
 
-<br/>
-
 #####	Motivation
 
 I initially made this to save some coding time. I used to start a new project and dump the old one every week.
@@ -13,11 +11,10 @@ It is made with only the standard Java API and thus highly portable.
 
 ---
 
-<br/>
-
 #####	Example
 
-```java
+```Java
+
 final Clock gameClock = new Clock();
 final Screen screen = new Screen(800, 600, "My game");
     
@@ -36,13 +33,12 @@ while (screen.isOpen()) {
 	gameClock.update();
 	screen.redraw();
 }
+
 ```
 
 There is a more detailed example over [here](https://gist.github.com/Sogomn/b23140b7d5e939814322).
 
 ---
-
-<br>
 
 ##### Note!
 
@@ -52,9 +48,3 @@ Full screen caps the frame rate at 60 on most devices and thus makes the update 
 If you need help or want to give feedback, hit me up on my Twitter @TheRealSogomn!
 
 ---
-
-<br/>
-
-<p align="center">
-	<img src="http://img5.fotos-hochladen.net/uploads/untitledwvetyg9u7k.png" alt="Icon"/>
-</p>
