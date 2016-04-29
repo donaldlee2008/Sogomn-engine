@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 /**
  * An abstract class that represents a container to hold multiple instances of one type.
  * Useful for listeners.
+ * All methods are synchronized with the internal ArrayList.
  * @author Sogomn
  *
  * @param <T> The object type the container should hold

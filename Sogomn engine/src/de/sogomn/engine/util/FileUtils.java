@@ -3,19 +3,18 @@ package de.sogomn.engine.util;
 import java.awt.Desktop;
 import java.awt.Desktop.Action;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class holds several useful methods related to files and IO-streams.
@@ -25,36 +24,62 @@ import java.util.ArrayList;
 public final class FileUtils {
 	
 	private static final int BUFFER_SIZE = 1024;
-	private static final String NEW_LINE = "\r\n";
 	
 	private FileUtils() {
 		//...
 	}
 	
-	private static byte[] readData(final InputStream in) {
+	/**
+	 * Reads all data from the given file (classpath!).
+	 * @param path The path to the file
+	 * @return The data or null in case of failure
+	 */
+	public static byte[] readInternalData(final String path) {
+		final InputStream in = FileUtils.class.getResourceAsStream(path);
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		final byte[] buffer = new byte[BUFFER_SIZE];
+		
+		int bytesRead = 0;
+		
 		try {
-			final ByteArrayOutputStream out = new ByteArrayOutputStream();
-			final byte[] buffer = new byte[BUFFER_SIZE];
-			
-			int bytesRead = 0;
-			
 			while ((bytesRead = in.read(buffer)) != -1) {
 				out.write(buffer, 0, bytesRead);
 			}
-			
-			in.close();
-			
-			final byte[] data = out.toByteArray();
-			
-			return data;
-		} catch (final IOException ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
+			
+			return null;
 		}
 		
-		return null;
+		return out.toByteArray();
 	}
 	
-	private static String[] readLines(final InputStream in) {
+	/**
+	 * Reads all data from the given external file.
+	 * @param path The path to the file
+	 * @return The data or null in case of failure
+	 */
+	public static byte[] readExternalData(final String path) {
+		final Path file = Paths.get(path);
+		
+		try {
+			final byte[] data = Files.readAllBytes(file);
+			
+			return data;
+		} catch (final Exception ex) {
+			ex.printStackTrace();
+			
+			return null;
+		}
+	}
+	
+	/**
+	 * Reads all lines from the given file (classpath!).
+	 * @param path The path to the file
+	 * @return The lines or null in case of failure
+	 */
+	public static String[] readInternalLines(final String path) {
+		final InputStream in = FileUtils.class.getResourceAsStream(path);
 		final InputStreamReader inReader = new InputStreamReader(in);
 		final BufferedReader reader = new BufferedReader(inReader);
 		final ArrayList<String> lines = new ArrayList<String>();
@@ -65,82 +90,15 @@ public final class FileUtils {
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);
 			}
-			
-			in.close();
-		} catch (final IOException ex) {
-			ex.printStackTrace();
-		}
-		
-		final String[] linesArray = lines.stream().toArray(String[]::new);
-		
-		return linesArray;
-	}
-	
-	/**
-	 * Reads all data from the given file (classpath!).
-	 * @param path The path to the file
-	 * @return The data or null in case of failure
-	 */
-	public static byte[] readInternalData(final String path) {
-		final InputStream in = FileUtils.class.getResourceAsStream(path);
-		
-		return readData(in);
-	}
-	
-	/**
-	 * Reads all data from the given external file.
-	 * @param file The file
-	 * @return The data or null in case of failure
-	 */
-	public static byte[] readExternalData(final File file) {
-		try {
-			final FileInputStream in = new FileInputStream(file);
-			
-			return readData(in);
-		} catch (final IOException ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 			
 			return null;
 		}
-	}
-	
-	/**
-	 * Reads all data from the given external file.
-	 * @param path The path to the file
-	 * @return The data or null in case of failure
-	 */
-	public static byte[] readExternalData(final String path) {
-		final File file = new File(path);
 		
-		return readExternalData(file);
-	}
-	
-	/**
-	 * Reads all lines from the given file (classpath!).
-	 * @param path The path to the file
-	 * @return The lines or null in case of failure
-	 */
-	public static String[] readInternalLines(final String path) {
-		final InputStream in = FileUtils.class.getResourceAsStream(path);
+		final String[] lineArray = lines.stream().toArray(String[]::new);
 		
-		return readLines(in);
-	}
-	
-	/**
-	 * Reads all lines from the given external file.
-	 * @param file The file
-	 * @return The lines or null in case of failure
-	 */
-	public static String[] readExternalLines(final File file) {
-		try {
-			final FileInputStream in = new FileInputStream(file);
-			
-			return readLines(in);
-		} catch (final IOException ex) {
-			ex.printStackTrace();
-			
-			return null;
-		}
+		return lineArray;
 	}
 	
 	/**
@@ -149,25 +107,17 @@ public final class FileUtils {
 	 * @return The lines or null in case of failure
 	 */
 	public static String[] readExternalLines(final String path) {
-		final File file = new File(path);
+		final Path file = Paths.get(path);
 		
-		return readExternalLines(file);
-	}
-	
-	/**
-	 * Writes data to the given file.
-	 * @param file The file
-	 * @param data The data
-	 */
-	public static void writeData(final File file, final byte[] data) {
 		try {
-			final FileOutputStream out = new FileOutputStream(file);
+			final List<String> lines = Files.readAllLines(file);
+			final String[] lineArray = lines.stream().toArray(String[]::new);
 			
-			out.write(data);
-			out.flush();
-			out.close();
-		} catch (final IOException ex) {
+			return lineArray;
+		} catch (final Exception ex) {
 			ex.printStackTrace();
+			
+			return null;
 		}
 	}
 	
@@ -175,32 +125,19 @@ public final class FileUtils {
 	 * Writes data to the given path.
 	 * @param path The path
 	 * @param data The data
+	 * @return True on success; false otherwise
 	 */
-	public static void writeData(final String path, final byte[] data) {
-		final File file = new File(path);
+	public static boolean writeData(final String path, final byte[] data) {
+		final Path file = Paths.get(path);
 		
-		writeData(file, data);
-	}
-	
-	/**
-	 * Writes lines of text to the given file.
-	 * @param file The file
-	 * @param lines The lines
-	 */
-	public static void writeLines(final File file, final String... lines) {
 		try {
-			final FileOutputStream out = new FileOutputStream(file);
-			final OutputStreamWriter outWriter = new OutputStreamWriter(out);
-			final BufferedWriter writer = new BufferedWriter(outWriter);
+			Files.write(file, data);
 			
-			for (final String line : lines) {
-				writer.write(line + NEW_LINE);
-			}
-			
-			writer.flush();
-			writer.close();
-		} catch (final IOException ex) {
+			return true;
+		} catch (final Exception ex) {
 			ex.printStackTrace();
+			
+			return false;
 		}
 	}
 	
@@ -208,11 +145,21 @@ public final class FileUtils {
 	 * Writes lines of text to the given path.
 	 * @param path The path
 	 * @param lines The lines
+	 * @return True on success; false otherwise
 	 */
-	public static void writeLines(final String path, final String... lines) {
-		final File file = new File(path);
+	public static boolean writeLines(final String path, final String... lines) {
+		final Path file = Paths.get(path);
+		final List<String> lineList = Arrays.asList(lines);
 		
-		writeLines(file, lines);
+		try {
+			Files.write(file, lineList);
+			
+			return true;
+		} catch (final Exception ex) {
+			ex.printStackTrace();
+			
+			return false;
+		}
 	}
 	
 	/**
@@ -223,20 +170,15 @@ public final class FileUtils {
 	 * @return True on success; false otherwise
 	 */
 	public static boolean createFile(final String path) {
-		final File file = new File(path);
-		final File parent = file.getParentFile();
-		
-		if (parent != null) {
-			final String parentPath = parent.getAbsolutePath();
-			
-			createDirectory(parentPath);
-		}
+		final Path file = Paths.get(path);
+		final Path parent = file.getParent();
 		
 		try {
-			return file.createNewFile();
-		} catch (final Exception ex) {
-			ex.printStackTrace();
+			Files.createDirectories(parent);
+			Files.createFile(file);
 			
+			return true;
+		} catch (final Exception ex) {
 			return false;
 		}
 	}
@@ -247,9 +189,15 @@ public final class FileUtils {
 	 * @return True on success; false otherwise
 	 */
 	public static boolean deleteFile(final String path) {
-		final File file = new File(path);
+		final Path file = Paths.get(path);
 		
-		return file.delete();
+		try {
+			Files.delete(file);
+			
+			return true;
+		} catch (final Exception ex) {
+			return false;
+		}
 	}
 	
 	/**
@@ -259,9 +207,15 @@ public final class FileUtils {
 	 * @return True on success; false otherwise
 	 */
 	public static boolean createDirectory(final String path) {
-		final File file = new File(path);
+		final Path file = Paths.get(path);
 		
-		return file.mkdirs();
+		try {
+			Files.createDirectories(file);
+			
+			return true;
+		} catch (final Exception ex) {
+			return false;
+		}
 	}
 	
 	/**
@@ -270,17 +224,12 @@ public final class FileUtils {
 	 * @param destination The destination file
 	 * @return True on success; false otherwise
 	 */
-	public static boolean copyFile(final File source, final File destination) {
-		final Path sourcePath = source.toPath();
-		final Path destinationPath = destination.toPath();
-		
+	public static boolean copyFile(final Path source, final Path destination) {
 		try {
-			Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
 			
 			return true;
 		} catch (final Exception ex) {
-			ex.printStackTrace();
-			
 			return false;
 		}
 	}
@@ -292,8 +241,8 @@ public final class FileUtils {
 	 * @return True on success; false otherwise
 	 */
 	public static boolean copyFile(final String source, final String destination) {
-		final File sourceFile = new File(source);
-		final File destinationFile = new File(destination);
+		final Path sourceFile = Paths.get(source);
+		final Path destinationFile = Paths.get(destination);
 		
 		return copyFile(sourceFile, destinationFile);
 	}
