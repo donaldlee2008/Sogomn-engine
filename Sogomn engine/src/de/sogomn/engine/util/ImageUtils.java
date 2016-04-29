@@ -1,3 +1,7 @@
+/*
+ * Copyright 2016 Johannes Boczek
+ */
+
 package de.sogomn.engine.util;
 
 import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
