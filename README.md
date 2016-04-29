@@ -1,4 +1,4 @@
-# Simple pure Java game engine
+### Simple pure Java game engine
 
 ---
 
