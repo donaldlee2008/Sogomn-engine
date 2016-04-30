@@ -72,6 +72,11 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 * @param title The screen title
 	 */
 	public Screen(final int width, final int height, final String title) {
+		frame = new JFrame(title);
+		canvas = new Canvas();
+		mouse = new Mouse();
+		keyboard = new Keyboard();
+		
 		final WindowAdapter closingAdapter = new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent w) {
@@ -84,11 +89,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 				calculateViewport();
 			}
 		};
-		
-		frame = new JFrame(title);
-		canvas = new Canvas();
-		mouse = new Mouse();
-		keyboard = new Keyboard();
 		
 		open = true;
 		initialWidth = canvasWidth = renderWidth = width;
@@ -108,6 +108,7 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 		frame.addKeyListener(keyboard);
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setIgnoreRepaint(true);
+		frame.enableInputMethods(false);
 		frame.addWindowListener(closingAdapter);
 		frame.addComponentListener(resizeAdapter);
 		frame.add(canvas, BorderLayout.CENTER);
@@ -194,9 +195,11 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 			
 			final Graphics2D g = screenImage.createGraphics();
 			
-			ImageUtils.applyHighGraphics(g);
+			ImageUtils.applyLowGraphics(g);
 			g.clearRect(0, 0, initialWidth, initialHeight);
+			
 			notifyListeners(drawable -> drawable.draw(g));
+			
 			g.dispose();
 		} while (screenImage.contentsLost());
 	}
@@ -352,6 +355,28 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	}
 	
 	/**
+	 * If true and supported, this will toggle full screen mode.
+	 * This will cap the drawing rate to what the default display configuration supports.
+	 * It is highly recommended to set the screen to non-resizable.
+	 * There may be performance issues.
+	 * @param fullScreen The full screen flag
+	 */
+	public void setFullScreen(final boolean fullScreen) {
+		if (!isVisible() || !isOpen()) {
+			return;
+		}
+		
+		final GraphicsDevice display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		final boolean fullScreenAllowed = display.isFullScreenSupported();
+		
+		if (fullScreen && fullScreenAllowed) {
+			display.setFullScreenWindow(frame);
+		} else {
+			display.setFullScreenWindow(null);
+		}
+	}
+	
+	/**
 	 * Sets the resizable flag of the screen.
 	 * Does nothing if the screen is in full screen mode.
 	 * @param resizable The state
@@ -366,26 +391,6 @@ public final class Screen extends AbstractListenerContainer<IDrawable> {
 	 */
 	public void setTitle(final String title) {
 		frame.setTitle(title);
-	}
-	
-	/**
-	 * If true and supported, this will toggle full screen mode.
-	 * This will cap the drawing rate to what the default display configuration supports.
-	 * It is highly recommended to set the screen to non-resizable.
-	 * There may be performance issues.
-	 * @param fullScreen The full screen flag
-	 */
-	public void setFullScreen(final boolean fullScreen) {
-		final GraphicsDevice display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		final boolean fullScreenAllowed = display.isFullScreenSupported();
-		
-		if (fullScreen && fullScreenAllowed) {
-			display.setFullScreenWindow(frame);
-		} else {
-			display.setFullScreenWindow(null);
-		}
-		
-		canvas.requestFocus();
 	}
 	
 	/**

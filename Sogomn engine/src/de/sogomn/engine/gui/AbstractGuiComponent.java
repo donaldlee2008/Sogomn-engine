@@ -79,7 +79,7 @@ public abstract class AbstractGuiComponent implements IDrawable, IMouseListener,
 	
 	@Override
 	public final void mouseEvent(final int x, final int y, final int button, final boolean flag) {
-		final boolean clicked = (leftPressed || rightPressed) && !flag;
+		final boolean clicked = (leftPressed || rightPressed) && !flag && hovered;
 		
 		if (clicked) {
 			clicked(button);
