@@ -1,5 +1,7 @@
 ### Simple pure Java game engine
 
+##########Creative name, eh?
+
 ---
 
 #####	Motivation
