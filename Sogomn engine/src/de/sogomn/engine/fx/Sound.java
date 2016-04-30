@@ -125,7 +125,7 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	/**
 	 * Sets the sample rate for this sound.
 	 * A higher sample rate means a higher pitch.
-	 * @param sampleRate
+	 * @param sampleRate The new sample rate
 	 */
 	public void setSampleRate(final float sampleRate) {
 		final AudioFormat newFormat = new AudioFormat(
