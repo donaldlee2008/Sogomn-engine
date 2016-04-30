@@ -47,5 +47,3 @@ Full screen caps the frame rate at 60 on most devices and thus makes the update 
 Also you need to handle synchronization with the event queue yourself.
 
 If you need help or want to give feedback, hit me up on my Twitter @TheRealSogomn!
-
----
