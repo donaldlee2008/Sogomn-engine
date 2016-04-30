@@ -13,7 +13,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.FloatControl.Type;
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -61,7 +60,7 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 			line.start();
 			line.write(data, 0, data.length);
 			line.drain();
-		} catch (final LineUnavailableException ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 		}
 	}
@@ -86,6 +85,7 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 		};
 		final Thread thread = new Thread(runnable);
 		
+		thread.setDaemon(true);
 		thread.start();
 	}
 	
@@ -123,6 +123,26 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	}
 	
 	/**
+	 * Sets the sample rate for this sound.
+	 * A higher sample rate means a higher pitch.
+	 * @param sampleRate
+	 */
+	public void setSampleRate(final float sampleRate) {
+		final AudioFormat newFormat = new AudioFormat(
+				format.getEncoding(),
+				sampleRate,
+				format.getSampleSizeInBits(),
+				format.getChannels(),
+				format.getFrameSize(),
+				format.getFrameRate(),
+				format.isBigEndian(),
+				format.properties()
+		);
+		
+		format = newFormat;
+	}
+	
+	/**
 	 * Returns whether the sound is playing or not.
 	 * @return The state
 	 */
@@ -139,6 +159,14 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	}
 	
 	/**
+	 * Returns the sample rate of this sound.
+	 * @return The sample rate
+	 */
+	public float getSampleRate() {
+		return format.getSampleRate();
+	}
+	
+	/**
 	 * Constructs a sound from the given data.
 	 * Since no AudioFormat is specified, this might not work.
 	 * @param data The audio data
@@ -151,13 +179,14 @@ public final class Sound extends AbstractListenerContainer<ISoundListener> {
 	}
 	
 	/**
-	 * Loads a sound from the classpath. The path should be prefixed with a slash ('/').
+	 * Loads a sound from the classpath.
 	 * @param path The path
 	 * @return The sound or null in case of faliure
 	 */
 	public static Sound loadSound(final String path) {
 		try {
-			final AudioInputStream in = AudioSystem.getAudioInputStream(new BufferedInputStream(Sound.class.getResourceAsStream(path)));
+			final BufferedInputStream bufferedIn = new BufferedInputStream(Sound.class.getResourceAsStream(path));
+			final AudioInputStream in = AudioSystem.getAudioInputStream(bufferedIn);
 			final AudioFormat format = in.getFormat();
 			final int bufferSize = in.available();
 			final byte[] buffer = new byte[bufferSize];
