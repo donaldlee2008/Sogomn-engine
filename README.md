@@ -44,7 +44,7 @@ There is a more detailed example over [here](https://gist.github.com/Sogomn/b231
 
 ##### Note!
 
-If running an application in full screen mode I recommend to start a separate thread for drawing.
+If running an application in full screen mode I recommend you to restrict the drawing rate.   
 Full screen caps the frame rate at 60 on most devices and thus makes the update chain lag.   
 Also you need to handle synchronization with the event queue yourself.
 
